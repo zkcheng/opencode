@@ -151,7 +151,7 @@ export function SessionHeader() {
           <Portal mount={mount()}>
             <div class="flex items-center gap-3">
               <StatusPopover />
-              <Show when={showShare()}>
+              {/* <Show when={showShare()}>
                 <div class="flex items-center">
                   <Popover
                     title={language.t("session.share.popover.title")}
@@ -245,7 +245,7 @@ export function SessionHeader() {
                     </Tooltip>
                   </Show>
                 </div>
-              </Show>
+              </Show> */}
               <div class="hidden md:flex items-center gap-3 ml-2 shrink-0">
                 <TooltipKeybind
                   title={language.t("command.terminal.toggle")}

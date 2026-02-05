@@ -2886,7 +2886,7 @@ export default function Layout(props: ParentProps) {
                 aria-label={language.t("sidebar.settings")}
               />
             </TooltipKeybind>
-            <Tooltip placement={sidebarProps.mobile ? "bottom" : "right"} value={language.t("sidebar.help")}>
+            {/* <Tooltip placement={sidebarProps.mobile ? "bottom" : "right"} value={language.t("sidebar.help")}>
               <IconButton
                 icon="help"
                 variant="ghost"
@@ -2894,7 +2894,7 @@ export default function Layout(props: ParentProps) {
                 onClick={() => platform.openLink("https://opencode.ai/desktop-feedback")}
                 aria-label={language.t("sidebar.help")}
               />
-            </Tooltip>
+            </Tooltip> */}
           </div>
         </div>
 

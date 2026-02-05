@@ -27,14 +27,14 @@ export const DialogSettings: Component = () => {
                       <Icon name="sliders" />
                       {language.t("settings.tab.general")}
                     </Tabs.Trigger>
-                    <Tabs.Trigger value="shortcuts">
+                    {/* <Tabs.Trigger value="shortcuts">
                       <Icon name="keyboard" />
                       {language.t("settings.tab.shortcuts")}
-                    </Tabs.Trigger>
+                    </Tabs.Trigger> */}
                   </div>
                 </div>
 
-                <div class="flex flex-col gap-1.5">
+                {/* <div class="flex flex-col gap-1.5">
                   <Tabs.SectionTitle>{language.t("settings.section.server")}</Tabs.SectionTitle>
                   <div class="flex flex-col gap-1.5 w-full">
                     <Tabs.Trigger value="providers">
@@ -46,7 +46,7 @@ export const DialogSettings: Component = () => {
                       {language.t("settings.models.title")}
                     </Tabs.Trigger>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             <div class="flex flex-col gap-1 pl-1 py-1 text-12-medium text-text-weak">
@@ -58,7 +58,7 @@ export const DialogSettings: Component = () => {
         <Tabs.Content value="general" class="no-scrollbar">
           <SettingsGeneral />
         </Tabs.Content>
-        <Tabs.Content value="shortcuts" class="no-scrollbar">
+        {/* <Tabs.Content value="shortcuts" class="no-scrollbar">
           <SettingsKeybinds />
         </Tabs.Content>
         <Tabs.Content value="providers" class="no-scrollbar">
@@ -66,7 +66,7 @@ export const DialogSettings: Component = () => {
         </Tabs.Content>
         <Tabs.Content value="models" class="no-scrollbar">
           <SettingsModels />
-        </Tabs.Content>
+        </Tabs.Content> */}
         {/* <Tabs.Content value="agents" class="no-scrollbar"> */}
         {/*   <SettingsAgents /> */}
         {/* </Tabs.Content> */}

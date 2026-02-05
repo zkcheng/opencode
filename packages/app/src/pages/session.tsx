@@ -1485,9 +1485,23 @@ export default function Page() {
     ),
   )
 
+  createEffect(() => {
+    const changes = diffs()
+    for (const diff of changes) {
+      if (diff.status === "added" || diff.status === "deleted") {
+        const parts = diff.file.split("/")
+        const parent = parts.length > 1 ? parts.slice(0, -1).join("/") : ""
+        // Refresh the parent directory of the changed file
+        // If it's a root file, parent is "", so it refreshes root
+        file.tree.refresh(parent)
+      }
+    }
+  })
+
   const showAllFiles = () => {
     if (fileTreeTab() !== "changes") return
     setFileTreeTab("all")
+    file.tree.refresh("")
   }
 
   const changesOptions = ["session", "turn"] as const
@@ -1593,6 +1607,9 @@ export default function Page() {
   const setFileTreeTabValue = (value: string) => {
     if (value !== "changes" && value !== "all") return
     setFileTreeTab(value)
+    if (value === "all") {
+      file.tree.refresh("")
+    }
   }
 
   const reviewDiffId = (path: string) => {
@@ -3662,7 +3679,7 @@ export default function Page() {
                           <ContextMenu.Item onSelect={handleRootUpload}>
                             <div class="flex items-center gap-2">
                               <Icon name="cloud-upload" size="small" />
-                              <span>Upload File to Root...</span>
+                              <span>上传到根目录</span>
                             </div>
                           </ContextMenu.Item>
                         </ContextMenu.Content>

@@ -364,7 +364,7 @@ export const SettingsGeneral: Component = () => {
         </div>
 
         {/* Updates Section */}
-        <div class="flex flex-col gap-1">
+        {/* <div class="flex flex-col gap-1">
           <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.updates")}</h3>
 
           <div class="bg-surface-raised-base px-4 rounded-lg">
@@ -398,10 +398,12 @@ export const SettingsGeneral: Component = () => {
               description={language.t("settings.updates.row.check.description")}
             >
               <Button
-                size="small"
+                data-action="settings-updates-check"
                 variant="secondary"
-                disabled={store.checking || !platform.checkUpdate}
+                size="small"
+                loading={store.checking}
                 onClick={check}
+                disabled={!platform.checkUpdate}
               >
                 {store.checking
                   ? language.t("settings.updates.action.checking")
@@ -409,7 +411,7 @@ export const SettingsGeneral: Component = () => {
               </Button>
             </SettingsRow>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

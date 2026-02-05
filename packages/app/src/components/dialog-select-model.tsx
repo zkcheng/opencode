@@ -28,6 +28,7 @@ const ModelList: Component<{
     local.model
       .list()
       .filter((m) => local.model.visible({ modelID: m.id, providerID: m.provider.id }))
+      .filter((m) => m.provider.id !== "opencode")
       .filter((m) => (props.provider ? m.provider.id === props.provider : true)),
   )
 
@@ -211,7 +212,7 @@ export function ModelSelectorPopover<T extends ValidComponent = "div">(props: {
             provider={props.provider}
             onSelect={() => setStore("open", false)}
             class="p-1"
-            action={
+            /* action={
               <div class="flex items-center gap-1">
                 <Tooltip placement="top" value={language.t("command.provider.connect")}>
                   <IconButton
@@ -234,7 +235,7 @@ export function ModelSelectorPopover<T extends ValidComponent = "div">(props: {
                   />
                 </Tooltip>
               </div>
-            }
+            } */
           />
         </Kobalte.Content>
       </Kobalte.Portal>
@@ -249,7 +250,7 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
   return (
     <Dialog
       title={language.t("dialog.model.select.title")}
-      action={
+      /* action={
         <Button
           class="h-7 -my-1 text-14-medium"
           icon="plus-small"
@@ -258,16 +259,16 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
         >
           {language.t("command.provider.connect")}
         </Button>
-      }
+      } */
     >
       <ModelList provider={props.provider} onSelect={() => dialog.close()} />
-      <Button
+      {/* <Button
         variant="ghost"
         class="ml-3 mt-5 mb-6 text-text-base self-start"
         onClick={() => dialog.show(() => <DialogManageModels />)}
       >
         {language.t("dialog.model.manage")}
-      </Button>
+      </Button> */}
     </Dialog>
   )
 }

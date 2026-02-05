@@ -423,7 +423,7 @@ export default function FileTree(props: {
             <ContextMenu.Item onSelect={() => handleUpload(local.node.path)}>
               <div class="flex items-center gap-2">
                 <Icon name="cloud-upload" size="small" />
-                <span>Upload File...</span>
+                <span>上传文件</span>
               </div>
             </ContextMenu.Item>
             <ContextMenu.Item onSelect={() => handleDownload(local.node.path)}>
@@ -431,8 +431,8 @@ export default function FileTree(props: {
                 <Icon name="download" size="small" />
                 <span>
                   {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
-                    ? "Download Selected"
-                    : "Download as Zip"}
+                    ? "下载选中文件"
+                    : "下载"}
                 </span>
               </div>
             </ContextMenu.Item>
@@ -443,8 +443,8 @@ export default function FileTree(props: {
                 <Icon name="download" size="small" />
                 <span>
                   {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
-                    ? "Download Selected"
-                    : "Download"}
+                    ? "下载选中文件"
+                    : "下载"}
                 </span>
               </div>
             </ContextMenu.Item>
