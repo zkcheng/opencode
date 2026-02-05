@@ -4255,6 +4255,46 @@ export type FileStatusResponses = {
 
 export type FileStatusResponse = FileStatusResponses[keyof FileStatusResponses]
 
+export type FileUploadData = {
+  body?: never
+  path?: never
+  query: {
+    directory?: string
+    path: string
+  }
+  url: "/file/upload"
+}
+
+export type FileUploadResponses = {
+  /**
+   * File uploaded
+   */
+  200: {
+    success: boolean
+  }
+}
+
+export type FileUploadResponse = FileUploadResponses[keyof FileUploadResponses]
+
+export type FileDownloadData = {
+  body?: never
+  path?: never
+  query: {
+    directory?: string
+    path: string
+  }
+  url: "/file/download"
+}
+
+export type FileDownloadResponses = {
+  /**
+   * File content
+   */
+  200: Blob | File
+}
+
+export type FileDownloadResponse = FileDownloadResponses[keyof FileDownloadResponses]
+
 export type McpStatusData = {
   body?: never
   path?: never

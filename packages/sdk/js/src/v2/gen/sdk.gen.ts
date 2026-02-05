@@ -25,11 +25,13 @@ import type {
   EventTuiSessionSelect,
   EventTuiToastShow,
   ExperimentalResourceListResponses,
+  FileDownloadResponses,
   FileListResponses,
   FilePartInput,
   FilePartSource,
   FileReadResponses,
   FileStatusResponses,
+  FileUploadResponses,
   FindFilesResponses,
   FindSymbolsResponses,
   FindTextResponses,
@@ -2334,6 +2336,66 @@ export class File extends HeyApiClient {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<FileStatusResponses, unknown, ThrowOnError>({
       url: "/file/status",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Upload file
+   *
+   * Upload a file to a specific directory.
+   */
+  public upload<ThrowOnError extends boolean = false>(
+    parameters: {
+      directory?: string
+      path: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "path" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<FileUploadResponses, unknown, ThrowOnError>({
+      url: "/file/upload",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Download file
+   *
+   * Download a file from the project.
+   */
+  public download<ThrowOnError extends boolean = false>(
+    parameters: {
+      directory?: string
+      path: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "path" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<FileDownloadResponses, unknown, ThrowOnError>({
+      url: "/file/download",
       ...options,
       ...params,
     })

@@ -42,10 +42,12 @@ import type { DragEvent } from "@thisbeyond/solid-dnd"
 import { useSync } from "@/context/sync"
 import { useTerminal, type LocalPTY } from "@/context/terminal"
 import { useLayout } from "@/context/layout"
+import { useServer } from "@/context/server"
 import { Terminal } from "@/components/terminal"
 import { checksum, base64Encode } from "@opencode-ai/util/encode"
 import { findLast } from "@opencode-ai/util/array"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { ContextMenu } from "@opencode-ai/ui/context-menu"
 import { DialogSelectFile } from "@/components/dialog-select-file"
 import FileTree from "@/components/file-tree"
 import { DialogSelectModel } from "@/components/dialog-select-model"
@@ -63,7 +65,7 @@ import { extractPromptFromParts } from "@/utils/prompt"
 import { ConstrainDragYAxis, getDraggableId } from "@/utils/solid-dnd"
 import { usePermission } from "@/context/permission"
 import { decode64 } from "@/utils/base64"
-import { showToast } from "@opencode-ai/ui/toast"
+import { showToast, showPromiseToast } from "@opencode-ai/ui/toast"
 import {
   SessionHeader,
   SessionContextTab,
@@ -269,6 +271,55 @@ export default function Page() {
   const prompt = usePrompt()
   const comments = useComments()
   const permission = usePermission()
+  const server = useServer()
+  const [selectedPaths, setSelectedPaths] = createSignal(new Set<string>())
+
+  const handleRootUpload = () => {
+    const input = document.createElement("input")
+    input.type = "file"
+    input.onchange = async (e) => {
+      const uploadFile = (e.target as HTMLInputElement).files?.[0]
+      if (!uploadFile) return
+
+      const formData = new FormData()
+      formData.append("file", uploadFile)
+
+      const promise = async () => {
+        const url = new URL("/file/upload", server.url)
+        url.searchParams.set("path", "")
+
+        const rootDir = params.dir ? decode64(params.dir) : null
+        if (rootDir) {
+          url.searchParams.set("directory", rootDir)
+        }
+
+        const res = await fetch(url, {
+          method: "POST",
+          body: formData,
+        })
+
+        const contentType = res.headers.get("content-type")
+        if (contentType && contentType.includes("text/html")) {
+          throw new Error(`Server returned HTML. Check server URL: ${server.url}`)
+        }
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.message || "Upload failed")
+        }
+
+        await file.tree.refresh("")
+        return "File uploaded successfully"
+      }
+
+      showPromiseToast(promise(), {
+        loading: "Uploading...",
+        success: (msg) => msg,
+        error: (err: any) => `Upload failed: ${err.message}`,
+      })
+    }
+    input.click()
+  }
 
   const request = createMemo(() => {
     const sessionID = params.id
@@ -3441,6 +3492,8 @@ export default function Page() {
                               kinds={kinds()}
                               draggable={false}
                               active={tree.activeDiff}
+                              selectedPaths={selectedPaths()}
+                              onSelectionChange={setSelectedPaths}
                               onFileClick={(node) => focusReviewDiff(node.path)}
                             />
                           </Show>
@@ -3452,13 +3505,35 @@ export default function Page() {
                         </Match>
                       </Switch>
                     </Tabs.Content>
-                    <Tabs.Content value="all" class="bg-background-base px-3 py-0">
-                      <FileTree
-                        path=""
-                        modified={diffFiles()}
-                        kinds={kinds()}
-                        onFileClick={(node) => openTab(file.tab(node.path))}
-                      />
+                    <Tabs.Content 
+                      value="all" 
+                      class="bg-background-base px-3 py-0 h-full"
+                      onClick={(e: MouseEvent) => {
+                        if (!(e.target as HTMLElement).closest("[data-file-node]")) {
+                          setSelectedPaths(new Set<string>())
+                        }
+                      }}
+                    >
+                      <ContextMenu>
+                        <ContextMenu.Trigger class="h-full">
+                          <FileTree
+                            path=""
+                            modified={diffFiles()}
+                            kinds={kinds()}
+                            selectedPaths={selectedPaths()}
+                            onSelectionChange={setSelectedPaths}
+                            onFileClick={(node) => openTab(file.tab(node.path))}
+                          />
+                        </ContextMenu.Trigger>
+                        <ContextMenu.Content>
+                          <ContextMenu.Item onSelect={handleRootUpload}>
+                            <div class="flex items-center gap-2">
+                              <Icon name="cloud-upload" size="small" />
+                              <span>Upload File to Root...</span>
+                            </div>
+                          </ContextMenu.Item>
+                        </ContextMenu.Content>
+                      </ContextMenu>
                     </Tabs.Content>
                   </Tabs>
                 </div>

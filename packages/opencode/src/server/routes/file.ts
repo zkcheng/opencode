@@ -1,6 +1,8 @@
 import { Hono } from "hono"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import z from "zod"
+import path from "path"
+import { HTTPException } from "hono/http-exception"
 import { File } from "../../file"
 import { Ripgrep } from "../../file/ripgrep"
 import { LSP } from "../../lsp"
@@ -192,6 +194,140 @@ export const FileRoutes = lazy(() =>
       async (c) => {
         const content = await File.status()
         return c.json(content)
+      },
+    )
+    .post(
+      "/file/upload",
+      describeRoute({
+        summary: "Upload file",
+        description: "Upload a file to a specific directory.",
+        operationId: "file.upload",
+        responses: {
+          200: {
+            description: "File uploaded",
+            content: {
+              "application/json": {
+                schema: resolver(z.object({ success: z.boolean() })),
+              },
+            },
+          },
+        },
+      }),
+      validator(
+        "query",
+        z.object({
+          path: z.string(),
+        }),
+      ),
+      async (c) => {
+        const dirPath = c.req.valid("query").path
+        const body = await c.req.parseBody()
+        const file = body["file"]
+
+        if (!(file instanceof globalThis.File)) {
+          throw new HTTPException(400, { message: "No file provided" })
+        }
+
+        const fullPath = path.join(Instance.directory, dirPath, file.name)
+
+        if (!Instance.containsPath(fullPath)) {
+          throw new HTTPException(403, { message: "Access denied" })
+        }
+
+        await Bun.write(fullPath, file)
+        return c.json({ success: true })
+      },
+    )
+    .get(
+      "/file/download",
+      describeRoute({
+        summary: "Download file",
+        description: "Download a file from the project.",
+        operationId: "file.download",
+        responses: {
+          200: {
+            description: "File content",
+            content: {
+              "application/octet-stream": {
+                schema: { type: "string", format: "binary" },
+              },
+            },
+          },
+        },
+      }),
+      validator(
+        "query",
+        z.object({
+          path: z.union([z.string(), z.array(z.string())]),
+        }),
+      ),
+      async (c) => {
+        const rawPath = c.req.valid("query").path
+        const paths = Array.isArray(rawPath) ? rawPath : [rawPath]
+        
+        if (paths.length === 0) {
+            throw new HTTPException(400, { message: "No path provided" })
+        }
+
+        // Single path handling (backward compatibility + optimization)
+        if (paths.length === 1) {
+            const filePath = paths[0]
+            const fullPath = path.join(Instance.directory, filePath)
+
+            if (!Instance.containsPath(fullPath)) {
+            throw new HTTPException(403, { message: "Access denied" })
+            }
+
+            const file = Bun.file(fullPath)
+            const exists = await file.exists()
+            
+            // Check if it is a directory
+            const stats = await import("node:fs/promises").then(fs => fs.stat(fullPath)).catch(() => null)
+            
+            if (!exists && !stats) {
+            throw new HTTPException(404, { message: "File not found" })
+            }
+
+            if (stats && stats.isDirectory()) {
+                const filename = path.basename(filePath) || "root"
+                const proc = Bun.spawn(["zip", "-r", "-", "."], {
+                    cwd: fullPath,
+                    stderr: "ignore",
+                })
+                
+                return c.body(proc.stdout, 200, {
+                    "Content-Type": "application/zip",
+                    "Content-Disposition": `attachment; filename="${filename}.zip"`,
+                })
+            }
+
+            return c.body(file.stream(), 200, {
+            "Content-Type": file.type || "application/octet-stream",
+            "Content-Disposition": `attachment; filename="${path.basename(filePath)}"`,
+            })
+        }
+
+        // Multiple paths handling
+        const zipArgs = ["zip", "-r", "-"]
+        for (const p of paths) {
+            const fullPath = path.join(Instance.directory, p)
+            if (!Instance.containsPath(fullPath)) {
+                throw new HTTPException(403, { message: "Access denied" })
+            }
+            // Use relative path for zip to maintain structure or just names?
+            // Using relative path from Instance.directory is safest
+            zipArgs.push(p)
+        }
+
+        const proc = Bun.spawn(zipArgs, {
+            cwd: Instance.directory,
+            stderr: "ignore",
+        })
+
+        return c.body(proc.stdout, 200, {
+            "Content-Type": "application/zip",
+            "Content-Disposition": `attachment; filename="download.zip"`,
+        })
       },
     ),
 )
