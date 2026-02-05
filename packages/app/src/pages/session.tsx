@@ -46,6 +46,7 @@ import { useServer } from "@/context/server"
 import { Terminal } from "@/components/terminal"
 import { checksum, base64Encode } from "@opencode-ai/util/encode"
 import { findLast } from "@opencode-ai/util/array"
+import { marked } from "marked"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { ContextMenu } from "@opencode-ai/ui/context-menu"
 import { DialogSelectFile } from "@/components/dialog-select-file"
@@ -2953,6 +2954,21 @@ export default function Page() {
                             const c = state()?.content
                             return c?.mimeType === "image/svg+xml"
                           })
+                          const isHtml = createMemo(() => {
+                            const p = path()
+                            return p?.endsWith(".html") || p?.endsWith(".htm")
+                          })
+                          const isMarkdown = createMemo(() => {
+                            const p = path()
+                            return p?.endsWith(".md") || p?.endsWith(".markdown")
+                          })
+                          const [previewHtml, setPreviewHtml] = createSignal(false)
+                          
+                          createEffect(() => {
+                            const p = path()
+                            setPreviewHtml(false)
+                          })
+
                           const isBinary = createMemo(() => state()?.content?.type === "binary")
                           const svgContent = createMemo(() => {
                             if (!isSvg()) return
@@ -3378,7 +3394,7 @@ export default function Page() {
                           return (
                             <Tabs.Content
                               value={tab}
-                              class="mt-3 relative"
+                              class="mt-1 relative"
                               ref={(el: HTMLDivElement) => {
                                 scroll = el
                                 restoreScroll()
@@ -3419,7 +3435,124 @@ export default function Page() {
                                     </div>
                                   </div>
                                 </Match>
-                                <Match when={state()?.loaded}>{renderCode(contents(), "pb-40")}</Match>
+                                <Match when={state()?.loaded && isHtml() && previewHtml()}>
+                                  <div class="flex flex-col h-full">
+                                    <div class="flex items-center justify-end px-4 py-1 border-b border-border-weak-base bg-background-base gap-2">
+                                      <button
+                                        class="px-3 py-1 text-12-medium text-text-weak hover:text-text-strong rounded-sm transition-colors border border-border-base bg-surface-raised-base hover:bg-surface-base-active"
+                                        onClick={() => {
+                                          const p = path()
+                                          if (!p) return
+                                          const url = `${window.location.origin}/preview/${base64Encode(sdk.directory)}?path=${encodeURIComponent(p)}`
+                                          window.open(url, "_blank")
+                                        }}
+                                      >
+                                        浏览器打开
+                                      </button>
+                                      <div class="flex bg-surface-raised-base rounded-md p-0.5 border border-border-base">
+                                        <button
+                                          class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                          classList={{
+                                            "bg-surface-base-active text-text-strong shadow-sm": !previewHtml(),
+                                            "text-text-weak hover:text-text-strong": previewHtml(),
+                                          }}
+                                          onClick={() => setPreviewHtml(false)}
+                                        >
+                                          代码
+                                        </button>
+                                        <button
+                                          class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                          classList={{
+                                            "bg-surface-base-active text-text-strong shadow-sm": previewHtml(),
+                                            "text-text-weak hover:text-text-strong": !previewHtml(),
+                                          }}
+                                          onClick={() => setPreviewHtml(true)}
+                                        >
+                                          预览
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div class="flex-1 min-h-0 relative w-full h-full bg-white">
+                                      <iframe
+                                        srcdoc={contents()}
+                                        class="w-full h-full border-none"
+                                        sandbox="allow-scripts"
+                                      />
+                                    </div>
+                                  </div>
+                                </Match>
+                                <Match when={state()?.loaded && isMarkdown() && previewHtml()}>
+                                  <div class="flex flex-col h-full">
+                                    <div class="flex items-center justify-end px-4 py-1 border-b border-border-weak-base bg-background-base gap-2">
+                                      <div class="flex bg-surface-raised-base rounded-md p-0.5 border border-border-base">
+                                        <button
+                                          class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                          classList={{
+                                            "bg-surface-base-active text-text-strong shadow-sm": !previewHtml(),
+                                            "text-text-weak hover:text-text-strong": previewHtml(),
+                                          }}
+                                          onClick={() => setPreviewHtml(false)}
+                                        >
+                                          代码
+                                        </button>
+                                        <button
+                                          class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                          classList={{
+                                            "bg-surface-base-active text-text-strong shadow-sm": previewHtml(),
+                                            "text-text-weak hover:text-text-strong": !previewHtml(),
+                                          }}
+                                          onClick={() => setPreviewHtml(true)}
+                                        >
+                                          预览
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div class="flex-1 min-h-0 relative w-full h-full bg-background-base overflow-auto px-8 py-6">
+                                      <div
+                                        class="prose dark:prose-invert max-w-none"
+                                        ref={(el) => {
+                                          const content = contents() ?? ""
+                                          Promise.resolve(marked.parse(content)).then((html) => {
+                                            el.innerHTML = html as string
+                                          })
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </Match>
+                                <Match when={state()?.loaded}>
+                                  <div class="flex flex-col h-full">
+                                    <Show when={isHtml() || isMarkdown()}>
+                                      <div class="flex items-center justify-end px-4 py-1 border-b border-border-weak-base bg-background-base">
+                                        <div class="flex bg-surface-raised-base rounded-md p-0.5 border border-border-base">
+                                          <button
+                                            class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                            classList={{
+                                              "bg-surface-base-active text-text-strong shadow-sm": !previewHtml(),
+                                              "text-text-weak hover:text-text-strong": previewHtml(),
+                                            }}
+                                            onClick={() => setPreviewHtml(false)}
+                                          >
+                                            代码
+                                          </button>
+                                          <button
+                                            class="px-3 py-1 text-12-medium rounded-sm transition-colors"
+                                            classList={{
+                                              "bg-surface-base-active text-text-strong shadow-sm": previewHtml(),
+                                              "text-text-weak hover:text-text-strong": !previewHtml(),
+                                            }}
+                                            onClick={() => setPreviewHtml(true)}
+                                          >
+                                            预览
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </Show>
+                                    <div class="flex-1 min-h-0 relative">
+                                      {renderCode(contents(), "pb-40")}
+                                    </div>
+                                  </div>
+                                </Match>
                                 <Match when={state()?.loading}>
                                   <div class="px-6 py-4 text-text-weak">{language.t("common.loading")}...</div>
                                 </Match>

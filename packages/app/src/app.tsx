@@ -34,6 +34,7 @@ import { Suspense } from "solid-js"
 
 const Home = lazy(() => import("@/pages/home"))
 const Session = lazy(() => import("@/pages/session"))
+const PreviewPage = lazy(() => import("@/pages/preview"))
 const Loading = () => <div class="size-full" />
 
 function UiI18nBridge(props: ParentProps) {
@@ -119,7 +120,7 @@ export function AppInterface(props: { defaultUrl?: string }) {
                         <ModelsProvider>
                           <CommandProvider>
                             <HighlightsProvider>
-                              <Layout>{props.children}</Layout>
+                              {props.children}
                             </HighlightsProvider>
                           </CommandProvider>
                         </ModelsProvider>
@@ -130,33 +131,43 @@ export function AppInterface(props: { defaultUrl?: string }) {
               )}
             >
               <Route
-                path="/"
+                path="/preview/:dir"
                 component={() => (
                   <Suspense fallback={<Loading />}>
-                    <Home />
+                    <PreviewPage />
                   </Suspense>
                 )}
               />
-              <Route path="/:dir" component={DirectoryLayout}>
-                <Route path="/" component={() => <Navigate href="session" />} />
+              <Route path="/" component={Layout}>
                 <Route
-                  path="/session/:id?"
-                  component={(p) => (
-                    <Show when={p.params.id ?? "new"}>
-                      <TerminalProvider>
-                        <FileProvider>
-                          <PromptProvider>
-                            <CommentsProvider>
-                              <Suspense fallback={<Loading />}>
-                                <Session />
-                              </Suspense>
-                            </CommentsProvider>
-                          </PromptProvider>
-                        </FileProvider>
-                      </TerminalProvider>
-                    </Show>
+                  path="/"
+                  component={() => (
+                    <Suspense fallback={<Loading />}>
+                      <Home />
+                    </Suspense>
                   )}
                 />
+                <Route path="/:dir" component={DirectoryLayout}>
+                  <Route path="/" component={() => <Navigate href="session" />} />
+                  <Route
+                    path="/session/:id?"
+                    component={(p) => (
+                      <Show when={p.params.id ?? "new"}>
+                        <TerminalProvider>
+                          <FileProvider>
+                            <PromptProvider>
+                              <CommentsProvider>
+                                <Suspense fallback={<Loading />}>
+                                  <Session />
+                                </Suspense>
+                              </CommentsProvider>
+                            </PromptProvider>
+                          </FileProvider>
+                        </TerminalProvider>
+                      </Show>
+                    )}
+                  />
+                </Route>
               </Route>
             </Router>
           </GlobalSyncProvider>
