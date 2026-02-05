@@ -1,6 +1,7 @@
 import { useFile } from "@/context/file"
 import { ContextMenu } from "@opencode-ai/ui/context-menu"
 import { useServer } from "@/context/server"
+import { usePlatform } from "@/context/platform"
 import { showPromiseToast } from "@opencode-ai/ui/toast"
 import { Collapsible } from "@opencode-ai/ui/collapsible"
 import { FileIcon } from "@opencode-ai/ui/file-icon"
@@ -52,6 +53,7 @@ export default function FileTree(props: {
 }) {
   const file = useFile()
   const server = useServer()
+  const platform = usePlatform()
   const params = useParams()
   const level = props.level ?? 0
   const draggable = () => props.draggable ?? true
@@ -418,38 +420,40 @@ export default function FileTree(props: {
             })()}
           </Dynamic>
         </ContextMenu.Trigger>
-        <ContextMenu.Content class="min-w-48">
-          <Show when={local.node.type === "directory"}>
-            <ContextMenu.Item onSelect={() => handleUpload(local.node.path)}>
-              <div class="flex items-center gap-2">
-                <Icon name="cloud-upload" size="small" />
-                <span>上传文件</span>
-              </div>
-            </ContextMenu.Item>
-            <ContextMenu.Item onSelect={() => handleDownload(local.node.path)}>
-              <div class="flex items-center gap-2">
-                <Icon name="download" size="small" />
-                <span>
-                  {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
-                    ? "下载选中文件"
-                    : "下载"}
-                </span>
-              </div>
-            </ContextMenu.Item>
-          </Show>
-          <Show when={local.node.type === "file"}>
-            <ContextMenu.Item onSelect={() => handleDownload(local.node.path)}>
-              <div class="flex items-center gap-2">
-                <Icon name="download" size="small" />
-                <span>
-                  {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
-                    ? "下载选中文件"
-                    : "下载"}
-                </span>
-              </div>
-            </ContextMenu.Item>
-          </Show>
-        </ContextMenu.Content>
+        <Show when={platform.platform === "web"}>
+          <ContextMenu.Content class="min-w-48">
+            <Show when={local.node.type === "directory"}>
+              <ContextMenu.Item onSelect={() => handleUpload(local.node.path)}>
+                <div class="flex items-center gap-2">
+                  <Icon name="cloud-upload" size="small" />
+                  <span>上传文件</span>
+                </div>
+              </ContextMenu.Item>
+              <ContextMenu.Item onSelect={() => handleDownload(local.node.path)}>
+                <div class="flex items-center gap-2">
+                  <Icon name="download" size="small" />
+                  <span>
+                    {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
+                      ? "下载选中文件"
+                      : "下载"}
+                  </span>
+                </div>
+              </ContextMenu.Item>
+            </Show>
+            <Show when={local.node.type === "file"}>
+              <ContextMenu.Item onSelect={() => handleDownload(local.node.path)}>
+                <div class="flex items-center gap-2">
+                  <Icon name="download" size="small" />
+                  <span>
+                    {props.selectedPaths?.has(local.node.path) && (props.selectedPaths?.size ?? 0) > 1
+                      ? "下载选中文件"
+                      : "下载"}
+                  </span>
+                </div>
+              </ContextMenu.Item>
+            </Show>
+          </ContextMenu.Content>
+        </Show>
       </ContextMenu>
     )
   }

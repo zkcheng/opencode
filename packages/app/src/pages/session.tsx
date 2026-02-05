@@ -43,6 +43,7 @@ import { useSync } from "@/context/sync"
 import { useTerminal, type LocalPTY } from "@/context/terminal"
 import { useLayout } from "@/context/layout"
 import { useServer } from "@/context/server"
+import { usePlatform } from "@/context/platform"
 import { Terminal } from "@/components/terminal"
 import { checksum, base64Encode } from "@opencode-ai/util/encode"
 import { findLast } from "@opencode-ai/util/array"
@@ -258,6 +259,7 @@ function SessionReviewTab(props: SessionReviewTabProps) {
 
 export default function Page() {
   const layout = useLayout()
+  const platform = usePlatform()
   const local = useLocal()
   const file = useFile()
   const sync = useSync()
@@ -3675,14 +3677,16 @@ export default function Page() {
                             onFileClick={(node) => openTab(file.tab(node.path))}
                           />
                         </ContextMenu.Trigger>
-                        <ContextMenu.Content>
-                          <ContextMenu.Item onSelect={handleRootUpload}>
-                            <div class="flex items-center gap-2">
-                              <Icon name="cloud-upload" size="small" />
-                              <span>上传到根目录</span>
-                            </div>
-                          </ContextMenu.Item>
-                        </ContextMenu.Content>
+                        <Show when={platform.platform === "web"}>
+                          <ContextMenu.Content>
+                            <ContextMenu.Item onSelect={handleRootUpload}>
+                              <div class="flex items-center gap-2">
+                                <Icon name="cloud-upload" size="small" />
+                                <span>上传到根目录</span>
+                              </div>
+                            </ContextMenu.Item>
+                          </ContextMenu.Content>
+                        </Show>
                       </ContextMenu>
                     </Tabs.Content>
                   </Tabs>

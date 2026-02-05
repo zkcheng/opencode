@@ -116,22 +116,30 @@ export const BashTool = Tool.define("bash", async () => {
         if (["cd", "rm", "cp", "mv", "mkdir", "touch", "chmod", "chown", "cat"].includes(command[0])) {
           for (const arg of command.slice(1)) {
             if (arg.startsWith("-") || (command[0] === "chmod" && arg.startsWith("+"))) continue
-            const resolved = await $`realpath ${arg}`
-              .cwd(cwd)
-              .quiet()
-              .nothrow()
-              .text()
-              .then((x) => x.trim())
-            log.info("resolved path", { arg, resolved })
-            if (resolved) {
-              // Git Bash on Windows returns Unix-style paths like /c/Users/...
-              const normalized =
-                process.platform === "win32" && resolved.match(/^\/[a-z]\//)
-                  ? resolved.replace(/^\/([a-z])\//, (_, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, "\\")
-                  : resolved
-              if (!Instance.containsPath(normalized)) {
-                const dir = (await Filesystem.isDir(normalized)) ? normalized : path.dirname(normalized)
-                directories.add(dir)
+
+            // Expand globs first, because realpath fails on strings with wildcards
+            const expandedArgs = await new Bun.Glob(arg).scan({ cwd, absolute: false, onlyFiles: false }).toArray()
+            const targets = expandedArgs.length > 0 ? expandedArgs : [arg]
+
+            for (const target of targets) {
+              const resolved = await $`realpath ${target}`
+                .cwd(cwd)
+                .quiet()
+                .nothrow()
+                .text()
+                .then((x) => x.trim())
+              
+              log.info("resolved path", { arg: target, resolved })
+              if (resolved) {
+                // Git Bash on Windows returns Unix-style paths like /c/Users/...
+                const normalized =
+                  process.platform === "win32" && resolved.match(/^\/[a-z]\//)
+                    ? resolved.replace(/^\/([a-z])\//, (_, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, "\\")
+                    : resolved
+                if (!Instance.containsPath(normalized)) {
+                  const dir = (await Filesystem.isDir(normalized)) ? normalized : path.dirname(normalized)
+                  directories.add(dir)
+                }
               }
             }
           }
