@@ -13,6 +13,7 @@ import { DialogSelectServer } from "@/components/dialog-select-server"
 import { useServer } from "@/context/server"
 import { useGlobalSync } from "@/context/global-sync"
 import { useLanguage } from "@/context/language"
+import { FIXED_PROJECTS, SHOW_SUBFOLDERS } from "@/custom"
 
 export default function Home() {
   const sync = useGlobalSync()
@@ -46,7 +47,17 @@ export default function Home() {
       }
     }
 
-    if (platform.openDirectoryPickerDialog && server.isLocal()) {
+    // 调试信息
+    console.log("chooseProject debug:", {
+      FIXED_PROJECTS,
+      FIXED_PROJECTS_length: FIXED_PROJECTS.length,
+      isEmpty: FIXED_PROJECTS.length === 0,
+      platform_openDirectoryPickerDialog: !!platform.openDirectoryPickerDialog,
+      server_isLocal: server.isLocal(),
+      condition_result: platform.openDirectoryPickerDialog && server.isLocal() && FIXED_PROJECTS.length === 0
+    })
+
+    if (platform.openDirectoryPickerDialog && server.isLocal() && FIXED_PROJECTS.length === 0) {
       const result = await platform.openDirectoryPickerDialog?.({
         title: language.t("command.project.open"),
         multiple: true,
@@ -54,7 +65,7 @@ export default function Home() {
       resolve(result)
     } else {
       dialog.show(
-        () => <DialogSelectDirectory multiple={true} onSelect={resolve} />,
+        () => <DialogSelectDirectory multiple={true} fixedOptions={FIXED_PROJECTS} showSubfolders={SHOW_SUBFOLDERS} onSelect={resolve} />,
         () => resolve(null),
       )
     }

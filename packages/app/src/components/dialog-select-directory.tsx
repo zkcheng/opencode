@@ -13,6 +13,8 @@ import type { ListRef } from "@opencode-ai/ui/list"
 interface DialogSelectDirectoryProps {
   title?: string
   multiple?: boolean
+  fixedOptions?: string[]
+  showSubfolders?: boolean
   onSelect: (result: string | string[] | null) => void
 }
 
@@ -30,6 +32,134 @@ export function DialogSelectDirectory(props: DialogSelectDirectoryProps) {
   const [filter, setFilter] = createSignal("")
 
   let list: ListRef | undefined
+
+  // 调试信息
+  console.log("DialogSelectDirectory props:", {
+    fixedOptions: props.fixedOptions,
+    fixedOptionsLength: props.fixedOptions?.length,
+    hasFixedOptions: props.fixedOptions && props.fixedOptions.length > 0,
+    showSubfolders: props.showSubfolders
+  })
+
+  // 获取子文件夹的函数
+  const getSubfolders = async (parentPath: string): Promise<Array<{ name: string; absolute: string }>> => {
+    try {
+      const result = await sdk.client.file.list({ directory: parentPath, path: "" })
+      const subfolders = (result.data || [])
+        .filter(node => node.type === "directory")
+        .map(node => ({
+          name: node.name,
+          absolute: node.absolute
+        }))
+      return subfolders
+    } catch (error) {
+      console.error(`扫描子文件夹失败: ${parentPath}`, error)
+      return []
+    }
+  }
+
+  // 如果有固定选项，只显示固定选项，不允许浏览其他目录
+  if (props.fixedOptions && props.fixedOptions.length > 0) {
+    // 创建资源来获取所有目录（包括子文件夹）
+    const [allDirectories] = createResource(
+      () => props.fixedOptions,
+      async (fixedPaths) => {
+        const allItems: Array<{ name: string; absolute: string; search: string }> = []
+        
+        for (const path of fixedPaths) {
+          // 添加父目录本身
+          allItems.push({
+            name: getFilename(path),
+            absolute: path,
+            search: `${getFilename(path)} ${path}` // 添加 search 字段
+          })
+          
+          // 如果需要显示子文件夹，扫描并添加
+          if (props.showSubfolders) {
+            const subfolders = await getSubfolders(path)
+            allItems.push(...subfolders.map(sub => ({
+              name: `${getFilename(path)}/${sub.name}`,
+              absolute: sub.absolute,
+              search: `${getFilename(path)}/${sub.name} ${sub.absolute}` // 添加 search 字段
+            })))
+          }
+        }
+        
+        return allItems
+      },
+      { initialValue: [] }
+    )
+
+    const filteredItems = createMemo(() => {
+      const dirs = allDirectories() || []
+      const query = filter().toLowerCase()
+      
+      if (!query) return dirs
+      
+      return dirs.filter(
+        (item) => item.name.toLowerCase().includes(query) || item.absolute.toLowerCase().includes(query),
+      ).map(item => ({
+        ...item,
+        search: `${item.name} ${item.absolute}` // 添加 search 字段供 List 组件过滤使用
+      }))
+    })
+
+    function resolve(absolute: string) {
+      props.onSelect(props.multiple ? [absolute] : absolute)
+      dialog.close()
+    }
+
+    return (
+      <Dialog title={props.title ?? language.t("command.project.open")}>
+        <List
+          search={{ placeholder: language.t("dialog.directory.search.placeholder"), autofocus: true }}
+          emptyMessage={language.t("dialog.directory.empty")}
+          loadingMessage={language.t("common.loading")}
+          items={filteredItems}
+          key={(x) => x.absolute}
+          filterKeys={["search"]}
+          ref={(r) => (list = r)}
+          onFilter={(value) => setFilter(value)}
+          onSelect={(item) => {
+            if (!item) return
+            resolve(item.absolute)
+          }}
+        >
+          {(item) => (
+            <div class="w-full flex items-center justify-between rounded-md">
+              <div class="flex items-center gap-x-3 grow min-w-0">
+                <FileIcon node={{ path: item.absolute, type: "directory" }} class="shrink-0 size-4" />
+                <div class="flex items-center text-14-regular min-w-0">
+                  <span class="text-text-strong whitespace-nowrap">{item.name}</span>
+                  <span class="text-text-weak ml-2 truncate">{item.absolute}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </List>
+      </Dialog>
+    )
+  }
+
+  // 如果没有固定选项，但用户要求限制目录，显示空列表
+  if (props.fixedOptions && props.fixedOptions.length === 0) {
+    return (
+      <Dialog title={props.title ?? language.t("command.project.open")}>
+        <List
+          search={{ placeholder: language.t("dialog.directory.search.placeholder"), autofocus: true }}
+          emptyMessage="没有可用的项目目录"
+          loadingMessage={language.t("common.loading")}
+          items={[]}
+          key={(x) => x}
+          ref={(r) => (list = r)}
+          onFilter={() => {}}
+          onSelect={() => {}}
+        >
+          {() => <div></div>}
+        </List>
+      </Dialog>
+    )
+  }
 
   const missingBase = createMemo(() => !(sync.data.path.home || sync.data.path.directory))
 

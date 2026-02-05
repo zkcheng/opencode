@@ -37,7 +37,7 @@ import { DiffChanges } from "@opencode-ai/ui/diff-changes"
 import { Spinner } from "@opencode-ai/ui/spinner"
 import { Dialog } from "@opencode-ai/ui/dialog"
 import { getFilename } from "@opencode-ai/util/path"
-import { Session, type Message, type TextPart } from "@opencode-ai/sdk/v2/client"
+import { Session, type Message, type TextPart, type UserMessage } from "@opencode-ai/sdk/v2/client"
 import { usePlatform } from "@/context/platform"
 import { useSettings } from "@/context/settings"
 import { createStore, produce, reconcile } from "solid-js/store"
@@ -75,6 +75,7 @@ import { DialogEditProject } from "@/components/dialog-edit-project"
 import { Titlebar } from "@/components/titlebar"
 import { useServer } from "@/context/server"
 import { useLanguage, type Locale } from "@/context/language"
+import { FIXED_PROJECTS, SHOW_SUBFOLDERS } from "@/custom"
 
 export default function Layout(props: ParentProps) {
   const [store, setStore, , ready] = persisted(
@@ -1306,7 +1307,7 @@ export default function Layout(props: ParentProps) {
       resolve(result)
     } else {
       dialog.show(
-        () => <DialogSelectDirectory multiple={true} onSelect={resolve} />,
+        () => <DialogSelectDirectory multiple={true} fixedOptions={FIXED_PROJECTS} showSubfolders={SHOW_SUBFOLDERS} onSelect={resolve} />,
         () => resolve(null),
       )
     }
@@ -1769,7 +1770,7 @@ export default function Layout(props: ParentProps) {
     })
 
     const hoverMessages = createMemo(() =>
-      sessionStore.message[props.session.id]?.filter((message) => message.role === "user"),
+      sessionStore.message[props.session.id]?.filter((message) => message.role === "user") as UserMessage[] | undefined,
     )
     const hoverReady = createMemo(() => sessionStore.message[props.session.id] !== undefined)
     const hoverAllowed = createMemo(() => !props.mobile && sidebarExpanded())
