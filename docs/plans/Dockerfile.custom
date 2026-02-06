@@ -1,0 +1,58 @@
+# 使用轻量级的 Linux 基础镜像
+FROM ubuntu:24.04
+
+# 设置环境变量，防止交互式安装提示
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 安装必要的依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    unzip \
+    python3 \
+    python3-pip \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# 创建非 root 用户 (出于安全考虑)
+RUN useradd -m -s /bin/bash opencode
+
+# 创建并设置应用目录
+WORKDIR /app
+RUN chown opencode:opencode /app
+
+USER opencode
+
+# 安装 opencode
+# 1. 复制本地构建的二进制文件和前端资源
+# 注意：这里我们直接将 public 复制到 /app/public，确保路径正确
+COPY --chown=opencode:opencode opencode-linux-x64 ./opencode-binary
+COPY --chown=opencode:opencode public ./public
+COPY --chown=opencode:opencode entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+RUN echo "invalidate_cache_$(date)" && \
+    curl -fsSL https://opencode.ai/install -o install.sh && \
+    # 如果需要 baseline 版本支持旧 CPU，可保留下行 sed 命令，但需确保二进制文件也是 baseline 构建
+    # sed -i 's/needs_baseline=false/needs_baseline=true/g' install.sh && \
+    chmod +x install.sh && \
+    ./install.sh --binary ./opencode-binary
+
+# 调试：检查安装位置
+RUN ls -R /home/opencode/.opencode
+
+# 将安装目录添加到 PATH
+ENV PATH="/home/opencode/.opencode/bin:${PATH}"
+
+# 验证安装
+RUN opencode --version
+
+# 暴露端口
+EXPOSE 4096
+
+# 启动命令
+# 1. 使用 entrypoint.sh 处理环境变量注入
+# 2. 使用绝对路径启动 opencode，避免 PATH 问题
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
