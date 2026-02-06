@@ -39,6 +39,35 @@ describe("tool.bash", () => {
   })
 })
 
+describe("tool.bash glob", () => {
+  test("handles globs correctly using Array.fromAsync", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        // Setup files
+        await Bun.write(path.join(tmp.path, "test1.txt"), "test1")
+        await Bun.write(path.join(tmp.path, "test2.txt"), "test2")
+        await Bun.write(path.join(tmp.path, "keep.md"), "keep")
+        
+        const bash = await BashTool.init()
+        const result = await bash.execute(
+          {
+            command: "rm *.txt",
+            description: "Remove text files",
+          },
+          ctx,
+        )
+        expect(result.metadata.exit).toBe(0)
+        expect(await Bun.file(path.join(tmp.path, "test1.txt")).exists()).toBe(false)
+        expect(await Bun.file(path.join(tmp.path, "test2.txt")).exists()).toBe(false)
+        expect(await Bun.file(path.join(tmp.path, "keep.md")).exists()).toBe(true)
+      },
+    })
+  }, 20000)
+})
+
+
 describe("tool.bash permissions", () => {
   test("asks for bash permission with correct pattern", async () => {
     await using tmp = await tmpdir({ git: true })

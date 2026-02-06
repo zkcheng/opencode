@@ -118,7 +118,7 @@ export const BashTool = Tool.define("bash", async () => {
             if (arg.startsWith("-") || (command[0] === "chmod" && arg.startsWith("+"))) continue
 
             // Expand globs first, because realpath fails on strings with wildcards
-            const expandedArgs = await new Bun.Glob(arg).scan({ cwd, absolute: false, onlyFiles: false }).toArray()
+            const expandedArgs = await Array.fromAsync(new Bun.Glob(arg).scan({ cwd, absolute: false, onlyFiles: false }))
             const targets = expandedArgs.length > 0 ? expandedArgs : [arg]
 
             for (const target of targets) {

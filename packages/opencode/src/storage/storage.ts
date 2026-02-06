@@ -25,20 +25,24 @@ export namespace Storage {
     async (dir) => {
       const project = path.resolve(dir, "../project")
       if (!(await Filesystem.isDir(project))) return
-      for await (const projectDir of new Bun.Glob("*").scan({
-        cwd: project,
-        onlyFiles: false,
-      })) {
+      for (const projectDir of await Array.fromAsync(
+        new Bun.Glob("*").scan({
+          cwd: project,
+          onlyFiles: false,
+        }),
+      )) {
         log.info(`migrating project ${projectDir}`)
         let projectID = projectDir
         const fullProjectDir = path.join(project, projectDir)
         let worktree = "/"
 
         if (projectID !== "global") {
-          for await (const msgFile of new Bun.Glob("storage/session/message/*/*.json").scan({
-            cwd: path.join(project, projectDir),
-            absolute: true,
-          })) {
+          for (const msgFile of await Array.fromAsync(
+            new Bun.Glob("storage/session/message/*/*.json").scan({
+              cwd: path.join(project, projectDir),
+              absolute: true,
+            }),
+          )) {
             const json = await Bun.file(msgFile).json()
             worktree = json.path?.root
             if (worktree) break
@@ -74,10 +78,12 @@ export namespace Storage {
           )
 
           log.info(`migrating sessions for project ${projectID}`)
-          for await (const sessionFile of new Bun.Glob("storage/session/info/*.json").scan({
-            cwd: fullProjectDir,
-            absolute: true,
-          })) {
+          for (const sessionFile of await Array.fromAsync(
+            new Bun.Glob("storage/session/info/*.json").scan({
+              cwd: fullProjectDir,
+              absolute: true,
+            }),
+          )) {
             const dest = path.join(dir, "session", projectID, path.basename(sessionFile))
             log.info("copying", {
               sessionFile,
@@ -86,10 +92,12 @@ export namespace Storage {
             const session = await Bun.file(sessionFile).json()
             await Bun.write(dest, JSON.stringify(session))
             log.info(`migrating messages for session ${session.id}`)
-            for await (const msgFile of new Bun.Glob(`storage/session/message/${session.id}/*.json`).scan({
-              cwd: fullProjectDir,
-              absolute: true,
-            })) {
+            for (const msgFile of await Array.fromAsync(
+              new Bun.Glob(`storage/session/message/${session.id}/*.json`).scan({
+                cwd: fullProjectDir,
+                absolute: true,
+              }),
+            )) {
               const dest = path.join(dir, "message", session.id, path.basename(msgFile))
               log.info("copying", {
                 msgFile,
@@ -99,11 +107,11 @@ export namespace Storage {
               await Bun.write(dest, JSON.stringify(message))
 
               log.info(`migrating parts for message ${message.id}`)
-              for await (const partFile of new Bun.Glob(`storage/session/part/${session.id}/${message.id}/*.json`).scan(
-                {
+              for (const partFile of await Array.fromAsync(
+                new Bun.Glob(`storage/session/part/${session.id}/${message.id}/*.json`).scan({
                   cwd: fullProjectDir,
                   absolute: true,
-                },
+                }),
               )) {
                 const dest = path.join(dir, "part", message.id, path.basename(partFile))
                 const part = await Bun.file(partFile).json()
@@ -119,10 +127,12 @@ export namespace Storage {
       }
     },
     async (dir) => {
-      for await (const item of new Bun.Glob("session/*/*.json").scan({
-        cwd: dir,
-        absolute: true,
-      })) {
+      for (const item of await Array.fromAsync(
+        new Bun.Glob("session/*/*.json").scan({
+          cwd: dir,
+          absolute: true,
+        }),
+      )) {
         const session = await Bun.file(item).json()
         if (!session.projectID) continue
         if (!session.summary?.diffs) continue
@@ -212,12 +222,17 @@ export namespace Storage {
   export async function list(prefix: string[]) {
     const dir = await state().then((x) => x.dir)
     try {
-      const result = await Array.fromAsync(
+      const result: string[][] = []
+      for (const file of await Array.fromAsync(
         glob.scan({
           cwd: path.join(dir, ...prefix),
           onlyFiles: true,
         }),
-      ).then((results) => results.map((x) => [...prefix, ...x.slice(0, -5).split(path.sep)]))
+      )) {
+        if (file.endsWith(".json")) {
+          result.push([...prefix, ...file.slice(0, -5).split(path.sep)])
+        }
+      }
       result.sort()
       return result
     } catch {
