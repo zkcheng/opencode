@@ -111,6 +111,10 @@ export const dict = {
   "dialog.model.manage": "管理模型",
   "dialog.model.manage.description": "自定义模型选择器中显示的模型。",
 
+  "dialog.skills.title": "Skills",
+  "dialog.skills.search.placeholder": "搜索 Skills",
+  "dialog.skills.empty": "未找到 Skills",
+
   "dialog.model.unpaid.freeModels.title": "OpenCode 提供的免费模型",
   "dialog.model.unpaid.addMore.title": "从热门提供商添加更多模型",
 
@@ -524,6 +528,7 @@ export const dict = {
   "settings.tab.shortcuts": "快捷键",
 
   "settings.general.section.appearance": "外观",
+  "settings.general.section.skills": "Skills",
   "settings.general.section.notifications": "系统通知",
   "settings.general.section.updates": "更新",
   "settings.general.section.sounds": "音效",
@@ -538,6 +543,11 @@ export const dict = {
   "settings.general.row.font.description": "自定义代码块使用的等宽字体",
   "settings.general.row.releaseNotes.title": "发行说明",
   "settings.general.row.releaseNotes.description": "更新后显示“新功能”弹窗",
+
+  "settings.general.skills.paths.title": "Skills 路径",
+  "settings.general.skills.paths.description": "添加包含 Skills 的额外路径（例如 ~/my-skills）",
+  "settings.general.skills.paths.add": "添加路径",
+  "settings.general.skills.paths.placeholder": "输入路径...",
 
   "settings.updates.row.startup.title": "启动时检查更新",
   "settings.updates.row.startup.description": "在 OpenCode 启动时自动检查更新",

@@ -65,6 +65,7 @@ type State = {
   icon: string | undefined
   provider: ProviderListResponse
   config: Config
+  skills: any[]
   path: Path
   session: Session[]
   sessionTotal: number
@@ -180,6 +181,7 @@ function createGlobalSync() {
     provider: ProviderListResponse
     provider_auth: ProviderAuthResponse
     config: Config
+    skills: any[]
     reload: undefined | "pending" | "complete"
   }>({
     ready: false,
@@ -188,6 +190,7 @@ function createGlobalSync() {
     provider: { all: [], connected: [], default: {} },
     provider_auth: {},
     config: {},
+    skills: [],
     reload: undefined,
   })
 
@@ -195,6 +198,17 @@ function createGlobalSync() {
   let root = false
   let running = false
   let timer: ReturnType<typeof setTimeout> | undefined
+  let suppressDisposal = false
+  let suppressTimer: ReturnType<typeof setTimeout> | undefined
+
+  const suppressNextDisposal = () => {
+     suppressDisposal = true
+     if (suppressTimer) clearTimeout(suppressTimer)
+     suppressTimer = setTimeout(() => {
+       suppressDisposal = false
+       suppressTimer = undefined
+     }, 2000)
+   }
 
   const paused = () => untrack(() => globalStore.reload) !== undefined
 
@@ -386,6 +400,7 @@ function createGlobalSync() {
           icon: icon[0].value,
           provider: { all: [], connected: [], default: {} },
           config: {},
+          skills: [],
           path: { state: "", config: "", worktree: "", directory: "", home: "" },
           status: "loading" as const,
           agent: [],
@@ -647,6 +662,9 @@ function createGlobalSync() {
     if (directory === "global") {
       switch (event?.type) {
         case "global.disposed": {
+          if (suppressDisposal) {
+            return
+          }
           refresh()
           return
         }
@@ -709,6 +727,7 @@ function createGlobalSync() {
 
     switch (event.type) {
       case "server.instance.disposed": {
+        if (suppressDisposal) return
         push(directory)
         return
       }
@@ -974,12 +993,12 @@ function createGlobalSync() {
     const tasks = [
       retry(() =>
         globalSDK.client.path.get().then((x) => {
-          setGlobalStore("path", x.data!)
+          setGlobalStore("path", reconcile(x.data!))
         }),
       ),
       retry(() =>
         globalSDK.client.global.config.get().then((x) => {
-          setGlobalStore("config", x.data!)
+          setGlobalStore("config", reconcile(x.data!))
         }),
       ),
       retry(() =>
@@ -989,17 +1008,22 @@ function createGlobalSync() {
             .filter((p) => !!p.worktree && !p.worktree.includes("opencode-test"))
             .slice()
             .sort((a, b) => cmp(a.id, b.id))
-          setGlobalStore("project", projects)
+          setGlobalStore("project", reconcile(projects, { key: "id" }))
         }),
       ),
       retry(() =>
         globalSDK.client.provider.list().then((x) => {
-          setGlobalStore("provider", normalizeProviderList(x.data!))
+          setGlobalStore("provider", reconcile(normalizeProviderList(x.data!)))
         }),
       ),
       retry(() =>
         globalSDK.client.provider.auth().then((x) => {
-          setGlobalStore("provider_auth", x.data ?? {})
+          setGlobalStore("provider_auth", reconcile(x.data ?? {}))
+        }),
+      ),
+      retry(() =>
+        globalSDK.client.app.skills().then((x) => {
+          setGlobalStore("skills", reconcile(x.data ?? [], { key: "name" }))
         }),
       ),
     ]
@@ -1069,6 +1093,7 @@ function createGlobalSync() {
         }, 1000)
       })
     },
+    suppressNextDisposal,
     project: {
       loadSessions,
       meta: projectMeta,

@@ -1,4 +1,4 @@
-import { Component, createMemo, type JSX } from "solid-js"
+import { Component, createMemo, type JSX, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
 import { Button } from "@opencode-ai/ui/button"
 import { Select } from "@opencode-ai/ui/select"
@@ -10,6 +10,11 @@ import { usePlatform } from "@/context/platform"
 import { useSettings, monoFontFamily } from "@/context/settings"
 import { playSound, SOUND_OPTIONS } from "@/utils/sound"
 import { Link } from "./link"
+import { useGlobalSync } from "@/context/global-sync"
+import { useGlobalSDK } from "@/context/global-sdk"
+import { IconButton } from "@opencode-ai/ui/icon-button"
+import { TextField } from "@opencode-ai/ui/text-field"
+import { Tooltip } from "@opencode-ai/ui/tooltip"
 
 let demoSoundState = {
   cleanup: undefined as (() => void) | undefined,
@@ -35,10 +40,59 @@ export const SettingsGeneral: Component = () => {
   const language = useLanguage()
   const platform = usePlatform()
   const settings = useSettings()
+  const sync = useGlobalSync()
+  const sdk = useGlobalSDK()
+
+  const [skillPath, setSkillPath] = createSignal("")
 
   const [store, setStore] = createStore({
     checking: false,
   })
+
+  const handleAddPath = async () => {
+    const path = skillPath().trim()
+    if (!path) return
+
+    const skillsConfig = sync.data.config.skills as { paths?: string[] } | undefined
+    const currentPaths = skillsConfig?.paths ?? []
+    
+    if (currentPaths.includes(path)) {
+      setSkillPath("")
+      return
+    }
+
+    try {
+      await sdk.client.global.config.update({
+        config: {
+          skills: {
+            paths: [...currentPaths, path],
+          },
+        },
+      })
+      setSkillPath("")
+    } catch (err) {
+      console.error(err)
+      showToast({ title: language.t("common.requestFailed"), description: String(err) })
+    }
+  }
+
+  const handleRemovePath = async (path: string) => {
+    const skillsConfig = sync.data.config.skills as { paths?: string[] } | undefined
+    const currentPaths = skillsConfig?.paths ?? []
+
+    try {
+      await sdk.client.global.config.update({
+        config: {
+          skills: {
+            paths: currentPaths.filter((p) => p !== path),
+          },
+        },
+      })
+    } catch (err) {
+      console.error(err)
+      showToast({ title: language.t("common.requestFailed"), description: String(err) })
+    }
+  }
 
   const check = () => {
     if (!platform.checkUpdate) return
@@ -363,7 +417,51 @@ export const SettingsGeneral: Component = () => {
           </div>
         </div>
 
-        {/* Updates Section */}
+        {/* Skills Section */}
+        <div class="flex flex-col gap-1">
+          <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.skills")}</h3>
+
+          <div class="bg-surface-raised-base px-4 rounded-lg">
+            <SettingsRow
+              title={language.t("settings.general.skills.paths.title")}
+              description={language.t("settings.general.skills.paths.description")}
+            >
+              <div class="flex flex-col gap-2 w-full max-w-[320px]">
+                <div class="flex flex-col gap-1">
+                  {(sync.data.config.skills as { paths?: string[] } | undefined)?.paths?.map((path) => (
+                    <div class="flex items-center justify-between gap-2 p-1.5 rounded-md bg-surface-raised-dim">
+                      <span class="text-13-regular text-text-base truncate font-mono" title={path}>
+                        {path}
+                      </span>
+                      <IconButton
+                        icon="trash"
+                        variant="ghost"
+                        class="text-text-weak hover:text-text-danger"
+                        onClick={() => handleRemovePath(path)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div class="flex items-center gap-2">
+                  <TextField
+                    value={skillPath()}
+                    onChange={setSkillPath}
+                    placeholder={language.t("settings.general.skills.paths.placeholder")}
+                    class="flex-1"
+                    onKeyDown={(e: KeyboardEvent) => {
+                      if (e.key === "Enter") handleAddPath()
+                    }}
+                  />
+                  <Button variant="secondary" onClick={handleAddPath}>
+                    {language.t("settings.general.skills.paths.add")}
+                  </Button>
+                </div>
+              </div>
+            </SettingsRow>
+          </div>
+        </div>
+
+        {/* Notifications Section */}
         {/* <div class="flex flex-col gap-1">
           <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.updates")}</h3>
 

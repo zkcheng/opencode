@@ -2379,7 +2379,7 @@ export class File extends HeyApiClient {
   public download<ThrowOnError extends boolean = false>(
     parameters: {
       directory?: string
-      path: string
+      path: string | Array<string>
     },
     options?: Options<never, ThrowOnError>,
   ) {

@@ -667,6 +667,7 @@ export namespace Config {
 
   export const Skills = z.object({
     paths: z.array(z.string()).optional().describe("Additional paths to skill folders"),
+    enabled: z.record(z.string(), z.boolean()).optional().describe("Map of skill names to their enabled status"),
   })
   export type Skills = z.infer<typeof Skills>
 

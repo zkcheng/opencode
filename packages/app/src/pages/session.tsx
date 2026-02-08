@@ -3618,45 +3618,51 @@ export default function Page() {
                     data-scope="filetree"
                   >
                     <Tabs.List>
-                      <Tabs.Trigger value="changes" class="flex-1" classes={{ button: "w-full" }}>
-                        {reviewCount()}{" "}
-                        {language.t(reviewCount() === 1 ? "session.review.change.one" : "session.review.change.other")}
-                      </Tabs.Trigger>
+                      {/* 隐藏变更标签页 - 业务人员不需要看到变更历史 */}
+                      {false && (
+                        <Tabs.Trigger value="changes" class="flex-1" classes={{ button: "w-full" }}>
+                          {reviewCount()}{" "}
+                          {language.t(reviewCount() === 1 ? "session.review.change.one" : "session.review.change.other")}
+                        </Tabs.Trigger>
+                      )}
                       <Tabs.Trigger value="all" class="flex-1" classes={{ button: "w-full" }}>
                         {language.t("session.files.all")}
                       </Tabs.Trigger>
                     </Tabs.List>
-                    <Tabs.Content value="changes" class="bg-background-base px-3 py-0">
-                      <Switch>
-                        <Match when={hasReview()}>
-                          <Show
-                            when={diffsReady()}
-                            fallback={
-                              <div class="px-2 py-2 text-12-regular text-text-weak">
-                                {language.t("common.loading")}
-                                {language.t("common.loading.ellipsis")}
-                              </div>
-                            }
-                          >
-                            <FileTree
-                              path=""
-                              allowed={diffFiles()}
-                              kinds={kinds()}
-                              draggable={false}
-                              active={tree.activeDiff}
-                              selectedPaths={selectedPaths()}
-                              onSelectionChange={setSelectedPaths}
-                              onFileClick={(node) => focusReviewDiff(node.path)}
-                            />
-                          </Show>
-                        </Match>
-                        <Match when={true}>
-                          <div class="mt-8 text-center text-12-regular text-text-weak">
-                            {language.t("session.review.noChanges")}
-                          </div>
-                        </Match>
-                      </Switch>
-                    </Tabs.Content>
+                    {/* 隐藏变更内容区域 - 业务人员不需要看到变更历史 */}
+                    {false && (
+                      <Tabs.Content value="changes" class="bg-background-base px-3 py-0">
+                        <Switch>
+                          <Match when={hasReview()}>
+                            <Show
+                              when={diffsReady()}
+                              fallback={
+                                <div class="px-2 py-2 text-12-regular text-text-weak">
+                                  {language.t("common.loading")}
+                                  {language.t("common.loading.ellipsis")}
+                                </div>
+                              }
+                            >
+                              <FileTree
+                                path=""
+                                allowed={diffFiles()}
+                                kinds={kinds()}
+                                draggable={false}
+                                active={tree.activeDiff}
+                                selectedPaths={selectedPaths()}
+                                onSelectionChange={setSelectedPaths}
+                                onFileClick={(node) => focusReviewDiff(node.path)}
+                              />
+                            </Show>
+                          </Match>
+                          <Match when={true}>
+                            <div class="mt-8 text-center text-12-regular text-text-weak">
+                              {language.t("session.review.noChanges")}
+                            </div>
+                          </Match>
+                        </Switch>
+                      </Tabs.Content>
+                    )}
                     <Tabs.Content 
                       value="all" 
                       class="bg-background-base px-3 py-0 h-full"

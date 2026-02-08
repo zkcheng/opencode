@@ -3,12 +3,18 @@ import { pathToFileURL } from "url"
 import z from "zod"
 import { Tool } from "./tool"
 import { Skill } from "../skill"
+import { Config } from "../config/config"
 import { PermissionNext } from "../permission/next"
 import { Ripgrep } from "../file/ripgrep"
 import { iife } from "@/util/iife"
 
 export const SkillTool = Tool.define("skill", async (ctx) => {
-  const skills = await Skill.all()
+  const config = await Config.get()
+  const enabledMap = config.skills?.enabled ?? {}
+  
+  const skills = await Skill.all().then((list) =>
+    list.filter((skill) => enabledMap[skill.name] !== false),
+  )
 
   // Filter skills by agent permissions if agent provided
   const agent = ctx?.agent
@@ -64,6 +70,11 @@ export const SkillTool = Tool.define("skill", async (ctx) => {
       if (!skill) {
         const available = await Skill.all().then((x) => Object.keys(x).join(", "))
         throw new Error(`Skill "${params.name}" not found. Available skills: ${available || "none"}`)
+      }
+
+      const config = await Config.get()
+      if (config.skills?.enabled?.[params.name] === false) {
+        throw new Error(`Skill "${params.name}" is disabled.`)
       }
 
       await ctx.ask({

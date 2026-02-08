@@ -1662,6 +1662,12 @@ export type Config = {
      * Additional paths to skill folders
      */
     paths?: Array<string>
+    /**
+     * Map of skill names to their enabled status
+     */
+    enabled?: {
+      [key: string]: boolean
+    }
   }
   watcher?: {
     ignore?: Array<string>
@@ -4281,7 +4287,7 @@ export type FileDownloadData = {
   path?: never
   query: {
     directory?: string
-    path: string
+    path: string | Array<string>
   }
   url: "/file/download"
 }

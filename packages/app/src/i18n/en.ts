@@ -109,6 +109,10 @@ export const dict = {
   "dialog.model.manage": "Manage models",
   "dialog.model.manage.description": "Customize which models appear in the model selector.",
 
+  "dialog.skills.title": "Skills",
+  "dialog.skills.search.placeholder": "Search Skills",
+  "dialog.skills.empty": "No Skills found",
+
   "dialog.model.unpaid.freeModels.title": "Free models provided by OpenCode",
   "dialog.model.unpaid.addMore.title": "Add more models from popular providers",
 
@@ -538,6 +542,7 @@ export const dict = {
   "settings.tab.shortcuts": "Shortcuts",
 
   "settings.general.section.appearance": "Appearance",
+  "settings.general.section.skills": "Skills",
   "settings.general.section.notifications": "System notifications",
   "settings.general.section.updates": "Updates",
   "settings.general.section.sounds": "Sound effects",
@@ -553,6 +558,11 @@ export const dict = {
 
   "settings.general.row.releaseNotes.title": "Release notes",
   "settings.general.row.releaseNotes.description": "Show What's New popups after updates",
+
+  "settings.general.skills.paths.title": "Skills Paths",
+  "settings.general.skills.paths.description": "Add additional paths containing Skills (e.g. ~/my-skills)",
+  "settings.general.skills.paths.add": "Add Path",
+  "settings.general.skills.paths.placeholder": "Enter path...",
 
   "settings.updates.row.startup.title": "Check for updates on startup",
   "settings.updates.row.startup.description": "Automatically check for updates when OpenCode launches",

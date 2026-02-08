@@ -19,6 +19,8 @@ import { Popover } from "@opencode-ai/ui/popover"
 import { TextField } from "@opencode-ai/ui/text-field"
 import { Keybind } from "@opencode-ai/ui/keybind"
 import { StatusPopover } from "../status-popover"
+import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { DialogSkills } from "@/components/dialog-skills"
 
 export function SessionHeader() {
   const globalSDK = useGlobalSDK()
@@ -28,6 +30,7 @@ export function SessionHeader() {
   const sync = useSync()
   const platform = usePlatform()
   const language = useLanguage()
+  const dialog = useDialog()
 
   const projectDirectory = createMemo(() => decode64(params.dir) ?? "")
   const project = createMemo(() => {
@@ -150,6 +153,14 @@ export function SessionHeader() {
         {(mount) => (
           <Portal mount={mount()}>
             <div class="flex items-center gap-3">
+              <Tooltip value={language.t("dialog.skills.title")}>
+                <IconButton
+                  icon="brain"
+                  variant="ghost"
+                  onClick={() => dialog.show(() => <DialogSkills />)}
+                  aria-label={language.t("dialog.skills.title")}
+                />
+              </Tooltip>
               <StatusPopover />
               {/* <Show when={showShare()}>
                 <div class="flex items-center">
