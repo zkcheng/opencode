@@ -182,6 +182,8 @@ export const dict = {
   "common.saving": "保存中...",
   "common.default": "默认",
   "common.attachment": "附件",
+  "common.success": "成功",
+  "common.error": "错误",
 
   "prompt.placeholder.shell": "输入 shell 命令...",
   "prompt.placeholder.normal": '随便问点什么... "{{example}}"',
@@ -711,6 +713,8 @@ export const dict = {
   "session.delete.title": "删除会话",
   "session.delete.confirm": '删除会话 "{{name}}"？',
   "session.delete.button": "删除会话",
+  "session.archive.success": "会话已删除",
+  "session.archive.failed": "删除会话失败",
 
   "workspace.new": "新建工作区",
   "workspace.type.local": "本地",
@@ -737,4 +741,7 @@ export const dict = {
   "workspace.reset.archived.one": "将归档 1 个会话。",
   "workspace.reset.archived.many": "将归档 {{count}} 个会话。",
   "workspace.reset.note": "这将把工作区重置为与默认分支一致。",
+
+  "dialog.workspace.select.title": "选择工作空间",
+  "dialog.workspace.current.badge": "当前",
 } satisfies Partial<Record<Keys, string>>

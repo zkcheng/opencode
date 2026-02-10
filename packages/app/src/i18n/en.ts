@@ -186,6 +186,8 @@ export const dict = {
   "common.saving": "Saving...",
   "common.default": "Default",
   "common.attachment": "attachment",
+  "common.success": "Success",
+  "common.error": "Error",
 
   "prompt.placeholder.shell": "Enter shell command...",
   "prompt.placeholder.normal": 'Ask anything... "{{example}}"',
@@ -727,6 +729,8 @@ export const dict = {
   "session.delete.title": "Delete session",
   "session.delete.confirm": 'Delete session "{{name}}"?',
   "session.delete.button": "Delete session",
+  "session.archive.success": "Session deleted",
+  "session.archive.failed": "Failed to delete session",
 
   "workspace.new": "New workspace",
   "workspace.type.local": "local",
@@ -753,4 +757,7 @@ export const dict = {
   "workspace.reset.archived.one": "1 session will be archived.",
   "workspace.reset.archived.many": "{{count}} sessions will be archived.",
   "workspace.reset.note": "This will reset the workspace to match the default branch.",
+
+  "dialog.workspace.select.title": "Select workspace",
+  "dialog.workspace.current.badge": "Current",
 }

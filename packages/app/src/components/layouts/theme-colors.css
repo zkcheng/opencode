@@ -1,0 +1,64 @@
+/**
+ * 新界面配色方案 - 基于4个frame设计
+ *
+ * 使用方式: 在 tailwind.config.js 或组件中引用这些颜色变量
+ */
+
+:root {
+  /* 主色调 - 极浅紫 */
+  --color-primary-light: #EDE9FE;
+  --color-primary-light-hover: #DDD6FE;
+
+  /* 深紫色 - 用于图标、按钮文字 */
+  --color-primary-deep: #7C3AED;
+
+  /* Logo紫色 */
+  --color-logo: #A78BFA;
+
+  /* 原紫色 - 技能图标等 */
+  --color-purple-base: #A855F7;
+
+  /* 页面背景 - 极浅灰 */
+  --color-bg-page: #FAFAFA;
+
+  /* 卡片背景 - 纯白 */
+  --color-bg-card: #FFFFFF;
+
+  /* 边框、分隔线 - 浅灰 */
+  --color-border: #F3F4F6;
+
+  /* 输入框背景 - 浅灰蓝 */
+  --color-bg-input: #F8FAFC;
+
+  /* 聊天气泡 - 用户 */
+  --color-chat-user: #F3F4F6;
+
+  /* AI图标颜色 */
+  --color-ai-icon: #6B7280;
+
+  /* 文字颜色 */
+  --color-text-primary: #0A0F1C;      /* 最深 */
+  --color-text-secondary: #1E293B;    /* 深色标题 */
+  --color-text-tertiary: #1F2937;     /* 用户消息 */
+  --color-text-quaternary: #334155;   /* 技能管理标题 */
+  --color-text-weak: #475569;         /* 次要文字 */
+  --color-text-weaker: #64748B;       /* 更弱文字 */
+  --color-text-weakest: #94A3B8;      /* 最弱文字 */
+
+  /* 特殊颜色 */
+  --color-history-active: #A855F7;    /* 历史任务选中 */
+  --color-history-bg: #F8F7FF;        /* 历史任务选中背景 */
+}
+
+/* Tailwind 自定义颜色类 (如果使用 Tailwind v3) */
+@layer utilities {
+  .bg-primary-light { background-color: var(--color-primary-light); }
+  .bg-primary-light-hover { background-color: var(--color-primary-light-hover); }
+  .bg-logo { background-color: var(--color-logo); }
+  .bg-page { background-color: var(--color-bg-page); }
+  .bg-chat-user { background-color: var(--color-chat-user); }
+
+  .text-logo { color: var(--color-logo); }
+  .text-primary-deep { color: var(--color-primary-deep); }
+  .text-history-active { color: var(--color-history-active); }
+}

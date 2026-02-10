@@ -1,4 +1,4 @@
-import { createEffect, createMemo, onCleanup, Show } from "solid-js"
+import { createEffect, createMemo, onCleanup, Show, createSignal, onMount } from "solid-js"
 import { createStore } from "solid-js/store"
 import { Portal } from "solid-js/web"
 import { useParams } from "@solidjs/router"
@@ -123,44 +123,28 @@ export function SessionHeader() {
     platform.openLink(url)
   }
 
-  const centerMount = createMemo(() => document.getElementById("opencode-titlebar-center"))
-  const rightMount = createMemo(() => document.getElementById("opencode-titlebar-right"))
+  const [centerMount, setCenterMount] = createSignal<HTMLElement | null>(null)
+  const [rightMount, setRightMount] = createSignal<HTMLElement | null>(null)
+
+  onMount(() => {
+    setCenterMount(document.getElementById("opencode-titlebar-center"))
+    setRightMount(document.getElementById("opencode-titlebar-right"))
+  })
 
   return (
     <>
-      <Show when={centerMount()}>
-        {(mount) => (
-          <Portal mount={mount()}>
-            <button
-              type="button"
-              class="hidden md:flex w-[320px] max-w-full min-w-0 p-1 pl-1.5 items-center gap-2 justify-between rounded-md border border-border-weak-base bg-surface-raised-base transition-colors cursor-default hover:bg-surface-raised-base-hover focus-visible:bg-surface-raised-base-hover active:bg-surface-raised-base-active"
-              onClick={() => command.trigger("file.open")}
-              aria-label={language.t("session.header.searchFiles")}
-            >
-              <div class="flex min-w-0 flex-1 items-center gap-2 overflow-visible">
-                <Icon name="magnifying-glass" size="normal" class="icon-base shrink-0" />
-                <span class="flex-1 min-w-0 text-14-regular text-text-weak truncate h-4.5 flex items-center">
-                  {language.t("session.header.search.placeholder", { project: name() })}
-                </span>
-              </div>
-
-              <Show when={hotkey()}>{(keybind) => <Keybind class="shrink-0">{keybind()}</Keybind>}</Show>
-            </button>
-          </Portal>
-        )}
-      </Show>
       <Show when={rightMount()}>
         {(mount) => (
           <Portal mount={mount()}>
             <div class="flex items-center gap-3">
-              <Tooltip value={language.t("dialog.skills.title")}>
+              {/* <Tooltip value={language.t("dialog.skills.title")}>
                 <IconButton
                   icon="brain"
                   variant="ghost"
                   onClick={() => dialog.show(() => <DialogSkills />)}
                   aria-label={language.t("dialog.skills.title")}
                 />
-              </Tooltip>
+              </Tooltip> */}
               <StatusPopover />
               {/* <Show when={showShare()}>
                 <div class="flex items-center">

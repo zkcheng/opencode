@@ -10,7 +10,7 @@
       "clip": true,
       "width": 1440,
       "height": 900,
-      "fill": "#F5F3FF",
+      "fill": "#FAFAFA",
       "cornerRadius": 12,
       "children": [
         {
@@ -31,7 +31,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 4,
@@ -46,7 +46,7 @@
                   "type": "text",
                   "id": "NjoPE",
                   "name": "logo",
-                  "fill": "#A855F7",
+                  "fill": "#A78BFA",
                   "content": "发小",
                   "fontFamily": "JetBrains Mono",
                   "fontSize": 24,
@@ -85,7 +85,7 @@
                   "name": "newTaskBtnNav",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#A855F7",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -102,7 +102,7 @@
                       "height": 18,
                       "iconFontName": "plus",
                       "iconFontFamily": "lucide",
-                      "fill": "#F5F3FF"
+                      "fill": "#7C3AED"
                     },
                     {
                       "type": "text",
@@ -122,7 +122,7 @@
                   "name": "skillEntry",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -321,7 +321,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 8,
@@ -339,6 +339,10 @@
                   "width": "fill_container",
                   "height": 40,
                   "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 10,
                   "padding": [
                     0,
@@ -378,7 +382,7 @@
           "name": "对话界面",
           "width": 560,
           "height": "fill_container",
-          "fill": "#F5F3FF",
+          "fill": "#FFFFFF",
           "layout": "vertical",
           "children": [
             {
@@ -391,7 +395,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#E9E5F5"
+                "fill": "#F3F4F6"
               },
               "gap": 16,
               "padding": [
@@ -438,7 +442,7 @@
                       "type": "frame",
                       "id": "vBBNR",
                       "name": "userBubble",
-                      "fill": "#A855F7",
+                      "fill": "#F3F4F6",
                       "cornerRadius": 12,
                       "layout": "vertical",
                       "gap": 4,
@@ -448,7 +452,7 @@
                           "type": "text",
                           "id": "JvkhZ",
                           "name": "userText",
-                          "fill": "#0A0F1C",
+                          "fill": "#1F2937",
                           "textGrowth": "fixed-width",
                           "width": 376,
                           "content": "帮我分析这个项目的代码结构",
@@ -482,7 +486,7 @@
                           "type": "text",
                           "id": "giQTt",
                           "name": "aiLogo",
-                          "fill": "#A855F7",
+                          "fill": "#6B7280",
                           "content": "发",
                           "fontFamily": "JetBrains Mono",
                           "fontSize": 16,
@@ -562,7 +566,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#E9E5F5"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 12,
@@ -586,7 +590,7 @@
                       "id": "59MPx",
                       "name": "inputContainer",
                       "width": "fill_container",
-                      "fill": "#F8F7FF",
+                      "fill": "#F8FAFC",
                       "cornerRadius": 12,
                       "layout": "vertical",
                       "gap": 8,
@@ -597,7 +601,7 @@
                           "id": "SST9D",
                           "name": "attachBtn",
                           "height": 32,
-                          "fill": "#FFFFFF",
+                          "fill": "#EDE9FE",
                           "cornerRadius": 6,
                           "gap": 8,
                           "padding": [
@@ -614,13 +618,13 @@
                               "height": 14,
                               "iconFontName": "plus",
                               "iconFontFamily": "lucide",
-                              "fill": "#A855F7"
+                              "fill": "#7C3AED"
                             },
                             {
                               "type": "text",
                               "id": "YJysf",
                               "name": "attachText",
-                              "fill": "#A855F7",
+                              "fill": "#7C3AED",
                               "content": "关联工作空间",
                               "fontFamily": "Inter",
                               "fontSize": 12,
@@ -632,7 +636,7 @@
                           "type": "text",
                           "id": "r1CZJ",
                           "name": "inputText",
-                          "fill": "#475569",
+                          "fill": "#64748B",
                           "content": "输入你的任务或问题...",
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -646,7 +650,7 @@
                       "name": "sendBtn",
                       "width": 48,
                       "height": 48,
-                      "fill": "#A855F7",
+                      "fill": "#EDE9FE",
                       "cornerRadius": 12,
                       "justifyContent": "center",
                       "alignItems": "center",
@@ -659,7 +663,7 @@
                           "height": 20,
                           "iconFontName": "send",
                           "iconFontFamily": "lucide",
-                          "fill": "#F5F3FF"
+                          "fill": "#7C3AED"
                         }
                       ]
                     }
@@ -688,7 +692,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "gap": 12,
               "padding": [
@@ -1063,7 +1067,7 @@
                     "thickness": {
                       "left": 1
                     },
-                    "fill": "#0F172A"
+                    "fill": "#F3F4F6"
                   },
                   "layout": "vertical",
                   "padding": [
@@ -1109,7 +1113,7 @@
                       "name": "codePreview",
                       "width": "fill_container",
                       "height": "fill_container",
-                      "fill": "#F5F3FF",
+                      "fill": "#F3F4F6",
                       "cornerRadius": 8,
                       "layout": "vertical",
                       "gap": 8,
@@ -1254,7 +1258,7 @@
       "clip": true,
       "width": 1440,
       "height": 900,
-      "fill": "#F5F3FF",
+      "fill": "#FAFAFA",
       "cornerRadius": 12,
       "children": [
         {
@@ -1275,7 +1279,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 4,
@@ -1290,7 +1294,7 @@
                   "type": "text",
                   "id": "Z1K7H",
                   "name": "logo",
-                  "fill": "#A855F7",
+                  "fill": "#A78BFA",
                   "content": "发小",
                   "fontFamily": "JetBrains Mono",
                   "fontSize": 24,
@@ -1329,7 +1333,7 @@
                   "name": "newTaskBtnNav",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#A855F7",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -1346,7 +1350,7 @@
                       "height": 18,
                       "iconFontName": "plus",
                       "iconFontFamily": "lucide",
-                      "fill": "#F5F3FF"
+                      "fill": "#7C3AED"
                     },
                     {
                       "type": "text",
@@ -1366,7 +1370,7 @@
                   "name": "skillEntry",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -1565,7 +1569,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 8,
@@ -1583,6 +1587,10 @@
                   "width": "fill_container",
                   "height": 40,
                   "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 10,
                   "padding": [
                     0,
@@ -1622,7 +1630,7 @@
           "name": "对话界面",
           "width": 920,
           "height": "fill_container",
-          "fill": "#F5F3FF",
+          "fill": "#FFFFFF",
           "layout": "vertical",
           "children": [
             {
@@ -1635,7 +1643,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#E9E5F5"
+                "fill": "#F3F4F6"
               },
               "gap": 16,
               "padding": [
@@ -1682,7 +1690,7 @@
                       "type": "frame",
                       "id": "j3aLF",
                       "name": "userBubble",
-                      "fill": "#A855F7",
+                      "fill": "#F3F4F6",
                       "cornerRadius": 12,
                       "layout": "vertical",
                       "gap": 4,
@@ -1692,7 +1700,7 @@
                           "type": "text",
                           "id": "kdxVm",
                           "name": "userText",
-                          "fill": "#0A0F1C",
+                          "fill": "#1F2937",
                           "textGrowth": "fixed-width",
                           "width": 376,
                           "content": "帮我分析这个项目的代码结构",
@@ -1726,7 +1734,7 @@
                           "type": "text",
                           "id": "WnmBX",
                           "name": "aiLogo",
-                          "fill": "#A855F7",
+                          "fill": "#6B7280",
                           "content": "发",
                           "fontFamily": "JetBrains Mono",
                           "fontSize": 16,
@@ -1806,7 +1814,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#E9E5F5"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 12,
@@ -1830,7 +1838,7 @@
                       "id": "WziKn",
                       "name": "inputContainer",
                       "width": "fill_container",
-                      "fill": "#F8F7FF",
+                      "fill": "#F8FAFC",
                       "cornerRadius": 12,
                       "layout": "vertical",
                       "gap": 8,
@@ -1841,7 +1849,7 @@
                           "id": "ciWiZ",
                           "name": "attachBtn",
                           "height": 32,
-                          "fill": "#FFFFFF",
+                          "fill": "#EDE9FE",
                           "cornerRadius": 6,
                           "gap": 8,
                           "padding": [
@@ -1858,13 +1866,13 @@
                               "height": 14,
                               "iconFontName": "plus",
                               "iconFontFamily": "lucide",
-                              "fill": "#A855F7"
+                              "fill": "#7C3AED"
                             },
                             {
                               "type": "text",
                               "id": "s6HAc",
                               "name": "attachText",
-                              "fill": "#A855F7",
+                              "fill": "#7C3AED",
                               "content": "关联工作空间",
                               "fontFamily": "Inter",
                               "fontSize": 12,
@@ -1876,7 +1884,7 @@
                           "type": "text",
                           "id": "f5iAI",
                           "name": "inputText",
-                          "fill": "#475569",
+                          "fill": "#64748B",
                           "content": "输入你的任务或问题...",
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -1890,7 +1898,7 @@
                       "name": "sendBtn",
                       "width": 48,
                       "height": 48,
-                      "fill": "#A855F7",
+                      "fill": "#EDE9FE",
                       "cornerRadius": 12,
                       "justifyContent": "center",
                       "alignItems": "center",
@@ -1903,7 +1911,7 @@
                           "height": 20,
                           "iconFontName": "send",
                           "iconFontFamily": "lucide",
-                          "fill": "#F5F3FF"
+                          "fill": "#7C3AED"
                         }
                       ]
                     }
@@ -1932,7 +1940,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "gap": 12,
               "padding": [
@@ -2013,7 +2021,7 @@
                       "name": "srcFolder",
                       "width": "fill_container",
                       "height": 32,
-                      "fill": "#F8F7FF",
+                      "fill": "#F3F4F6",
                       "cornerRadius": 6,
                       "gap": 20,
                       "padding": [
@@ -2052,6 +2060,7 @@
                       "name": "fileItem1",
                       "width": "fill_container",
                       "height": 32,
+                      "fill": "#F3F4F6",
                       "cornerRadius": 6,
                       "gap": 20,
                       "padding": [
@@ -2090,6 +2099,7 @@
                       "name": "fileItem2",
                       "width": "fill_container",
                       "height": 32,
+                      "fill": "#F3F4F6",
                       "cornerRadius": 6,
                       "gap": 20,
                       "padding": [
@@ -2128,6 +2138,7 @@
                       "name": "fileItem3",
                       "width": "fill_container",
                       "height": 32,
+                      "fill": "#F3F4F6",
                       "cornerRadius": 6,
                       "gap": 20,
                       "padding": [
@@ -2166,6 +2177,7 @@
                       "name": "componentsFolder",
                       "width": "fill_container",
                       "height": 32,
+                      "fill": "#F3F4F6",
                       "cornerRadius": 6,
                       "gap": 20,
                       "padding": [
@@ -2291,7 +2303,7 @@
       "clip": true,
       "width": 1440,
       "height": 900,
-      "fill": "#F5F3FF",
+      "fill": "#FAFAFA",
       "cornerRadius": 12,
       "children": [
         {
@@ -2312,7 +2324,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 4,
@@ -2327,7 +2339,7 @@
                   "type": "text",
                   "id": "z5Tv8",
                   "name": "logo",
-                  "fill": "#A855F7",
+                  "fill": "#A78BFA",
                   "content": "发小",
                   "fontFamily": "JetBrains Mono",
                   "fontSize": 24,
@@ -2366,7 +2378,7 @@
                   "name": "newTaskBtnNav",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#A855F7",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -2383,7 +2395,7 @@
                       "height": 18,
                       "iconFontName": "plus",
                       "iconFontFamily": "lucide",
-                      "fill": "#F5F3FF"
+                      "fill": "#7C3AED"
                     },
                     {
                       "type": "text",
@@ -2403,7 +2415,7 @@
                   "name": "skillEntry",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#F8F7FF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -2600,7 +2612,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 8,
@@ -2618,6 +2630,10 @@
                   "width": "fill_container",
                   "height": 40,
                   "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 10,
                   "padding": [
                     0,
@@ -2657,9 +2673,9 @@
           "name": "skillContent",
           "width": 1160,
           "height": "fill_container",
-          "fill": "#F5F3FF",
+          "fill": "#FFFFFF",
           "layout": "vertical",
-          "gap": 16,
+          "gap": 20,
           "padding": 24,
           "children": [
             {
@@ -2674,7 +2690,7 @@
                   "type": "text",
                   "id": "mGRth",
                   "name": "skillTitle",
-                  "fill": "#1E293B",
+                  "fill": "#334155",
                   "content": "技能管理",
                   "fontFamily": "Inter",
                   "fontSize": 24,
@@ -2696,8 +2712,12 @@
                   "id": "ro7TD",
                   "name": "skillCard1",
                   "width": "fill_container",
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "layout": "vertical",
                   "gap": 12,
                   "padding": 16,
@@ -2761,8 +2781,12 @@
                   "id": "6ron9",
                   "name": "skillCard2",
                   "width": "fill_container",
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "layout": "vertical",
                   "gap": 12,
                   "padding": 16,
@@ -2790,7 +2814,7 @@
                           "name": "toggle",
                           "width": 44,
                           "height": 24,
-                          "fill": "#475569",
+                          "fill": "#898d93ff",
                           "cornerRadius": 12,
                           "padding": 2,
                           "alignItems": "center",
@@ -2825,8 +2849,12 @@
                   "id": "6caPG",
                   "name": "skillCard3",
                   "width": "fill_container",
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "layout": "vertical",
                   "gap": 12,
                   "padding": 16,
@@ -2900,7 +2928,7 @@
       "clip": true,
       "width": 1440,
       "height": 900,
-      "fill": "#F5F3FF",
+      "fill": "#FAFAFA",
       "cornerRadius": 12,
       "children": [
         {
@@ -2921,7 +2949,7 @@
                 "thickness": {
                   "bottom": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 4,
@@ -2936,7 +2964,7 @@
                   "type": "text",
                   "id": "Fvr2E",
                   "name": "logo",
-                  "fill": "#A855F7",
+                  "fill": "#A78BFA",
                   "content": "发小",
                   "fontFamily": "JetBrains Mono",
                   "fontSize": 24,
@@ -2975,7 +3003,7 @@
                   "name": "newTaskBtnNav",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#A855F7",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -2992,7 +3020,7 @@
                       "height": 18,
                       "iconFontName": "plus",
                       "iconFontFamily": "lucide",
-                      "fill": "#F5F3FF"
+                      "fill": "#7C3AED"
                     },
                     {
                       "type": "text",
@@ -3012,7 +3040,7 @@
                   "name": "skillEntry",
                   "width": "fill_container",
                   "height": 44,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 8,
                   "gap": 12,
                   "padding": [
@@ -3211,7 +3239,7 @@
                 "thickness": {
                   "top": 1
                 },
-                "fill": "#0F172A"
+                "fill": "#F3F4F6"
               },
               "layout": "vertical",
               "gap": 8,
@@ -3229,6 +3257,10 @@
                   "width": "fill_container",
                   "height": 40,
                   "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 10,
                   "padding": [
                     0,
@@ -3268,7 +3300,7 @@
           "name": "对话界面",
           "width": 1160,
           "height": "fill_container",
-          "fill": "#F5F3FF",
+          "fill": "#FFFFFF",
           "layout": "vertical",
           "padding": [
             0,
@@ -3324,6 +3356,10 @@
                   "height": 136,
                   "fill": "#FFFFFF",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 2,
+                    "fill": "#EDE9FE"
+                  },
                   "gap": 8,
                   "padding": 16,
                   "justifyContent": "space_between",
@@ -3344,7 +3380,7 @@
                           "name": "inputContainer",
                           "width": "fill_container",
                           "height": 112,
-                          "fill": "#F8F7FF",
+                          "fill": "#F8FAFC",
                           "cornerRadius": 12,
                           "gap": 8,
                           "padding": 16,
@@ -3355,7 +3391,7 @@
                               "id": "F1jOK",
                               "name": "attachBtn",
                               "height": 32,
-                              "fill": "#FFFFFF",
+                              "fill": "#EDE9FE",
                               "cornerRadius": 6,
                               "gap": 8,
                               "padding": [
@@ -3372,13 +3408,13 @@
                                   "height": 16,
                                   "iconFontName": "paperclip",
                                   "iconFontFamily": "lucide",
-                                  "fill": "#94A3B8"
+                                  "fill": "#7C3AED"
                                 },
                                 {
                                   "type": "text",
                                   "id": "l09AS",
                                   "name": "attachText",
-                                  "fill": "#64748B",
+                                  "fill": "#7C3AED",
                                   "content": "关联工作空间",
                                   "fontFamily": "Inter",
                                   "fontSize": 13,
@@ -3404,7 +3440,7 @@
                           "name": "sendBtn",
                           "width": 48,
                           "height": 48,
-                          "fill": "#A855F7",
+                          "fill": "#EDE9FE",
                           "cornerRadius": 12,
                           "justifyContent": "center",
                           "alignItems": "center",
@@ -3417,7 +3453,7 @@
                               "height": 20,
                               "iconFontName": "send",
                               "iconFontFamily": "lucide",
-                              "fill": "#F5F3FF"
+                              "fill": "#7C3AED"
                             }
                           ]
                         }
@@ -3447,8 +3483,12 @@
                   "name": "skillCard1",
                   "width": 280,
                   "height": 100,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 12,
                   "padding": 20,
                   "justifyContent": "center",
@@ -3460,7 +3500,7 @@
                       "name": "iconBg1",
                       "width": 48,
                       "height": 48,
-                      "fill": "#A855F7",
+                      "fill": "#7C3AED",
                       "cornerRadius": 24,
                       "justifyContent": "center",
                       "alignItems": "center",
@@ -3505,8 +3545,12 @@
                   "name": "skillCard2",
                   "width": 280,
                   "height": 100,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 12,
                   "padding": 20,
                   "justifyContent": "center",
@@ -3518,7 +3562,7 @@
                       "name": "iconBg2",
                       "width": 48,
                       "height": 48,
-                      "fill": "#A855F7",
+                      "fill": "#7C3AED",
                       "cornerRadius": 24,
                       "justifyContent": "center",
                       "alignItems": "center",
@@ -3563,8 +3607,12 @@
                   "name": "skillCard3",
                   "width": 280,
                   "height": 100,
-                  "fill": "#FFFFFF",
+                  "fill": "#EDE9FE",
                   "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 0,
+                    "fill": "transparent"
+                  },
                   "gap": 12,
                   "padding": 20,
                   "justifyContent": "center",
@@ -3576,7 +3624,7 @@
                       "name": "iconBg3",
                       "width": 48,
                       "height": 48,
-                      "fill": "#A855F7",
+                      "fill": "#7C3AED",
                       "cornerRadius": 24,
                       "justifyContent": "center",
                       "alignItems": "center",

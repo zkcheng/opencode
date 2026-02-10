@@ -75,6 +75,7 @@ interface PromptInputProps {
   newSessionWorktree?: string
   onNewSessionWorktreeReset?: () => void
   onSubmit?: () => void
+  requireWorkspace?: boolean
 }
 
 const EXAMPLES = [
@@ -137,6 +138,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   let fileInputRef!: HTMLInputElement
   let scrollRef!: HTMLDivElement
   let slashPopoverRef!: HTMLDivElement
+
+  // 跟踪上一次的会话 ID，用于检测会话切换
+  const [previousSessionId, setPreviousSessionId] = createSignal<string | undefined>(undefined)
 
   const mirror = { input: false }
 
@@ -321,6 +325,53 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       setStore("placeholder", (prev) => (prev + 1) % EXAMPLES.length)
     }, 6500)
     onCleanup(() => clearInterval(interval))
+  })
+
+  // 当会话 ID 变化时，如果是切换到 "new" 会话，重置 prompt
+  createEffect(() => {
+    const id = params.id
+    const prevId = previousSessionId()
+    const isNewSession = !id || id === "new"
+
+    console.log("[PromptInput] 会话 ID 变化:", {
+      id,
+      prevId,
+      isNewSession,
+      sessionChanged: prevId !== id,
+    })
+
+    // 只在从不同会话切换到 "new" 会话时重置 prompt
+    if (isNewSession && prevId !== id && prevId !== undefined) {
+      console.log("[PromptInput] 会话切换到 new，重置 prompt")
+      prompt.reset()
+    }
+
+    setPreviousSessionId(id)
+  })
+
+  // 工作空间选择 - 响应式计算
+  const worktreeSelection = createMemo(() => {
+    const value = props.newSessionWorktree ?? (props.requireWorkspace ? sdk.directory : undefined)
+    console.log("[PromptInput] worktreeSelection 更新:", {
+      newSessionWorktree: props.newSessionWorktree,
+      requireWorkspace: props.requireWorkspace,
+      sdkDirectory: sdk.directory,
+      result: value,
+    })
+    return value
+  })
+
+  // 当切换到新会话且 requireWorkspace 时，检查工作空间
+  createEffect(() => {
+    const id = params.id
+    const isNewSession = !id
+    if (isNewSession && props.requireWorkspace) {
+      console.log("[PromptInput] 新会话检查工作空间:", {
+        worktreeSelection: worktreeSelection(),
+        newSessionWorktree: props.newSessionWorktree,
+        sdkDirectory: sdk.directory,
+      })
+    }
   })
 
   const [composing, setComposing] = createSignal(false)
@@ -1132,7 +1183,19 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     const images = imageAttachments().slice()
     const mode = store.mode
 
+    console.log("[PromptInput] handleSubmit 调用:", {
+      currentPrompt,
+      textLength: text.length,
+      textTrimmedLength: text.trim().length,
+      imagesCount: images.length,
+      commentCount: commentCount(),
+      paramsId: params.id,
+      requireWorkspace: props.requireWorkspace,
+      worktreeSelection: worktreeSelection(),
+    })
+
     if (text.trim().length === 0 && images.length === 0 && commentCount() === 0) {
+      console.log("[PromptInput] handleSubmit 早期返回 - 没有内容")
       if (working()) abort()
       return
     }
@@ -1161,14 +1224,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     setStore("savedPrompt", null)
 
     const projectDirectory = sdk.directory
-    const isNewSession = !params.id
-    const worktreeSelection = props.newSessionWorktree ?? "main"
+    const isNewSession = !params.id || params.id === "new"
 
     let sessionDirectory = projectDirectory
     let client = sdk.client
 
     if (isNewSession) {
-      if (worktreeSelection === "create") {
+      if (worktreeSelection() === "create") {
         const createdWorktree = await client.worktree
           .create({ directory: projectDirectory })
           .then((x) => x.data)
@@ -1191,8 +1253,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         sessionDirectory = createdWorktree.directory
       }
 
-      if (worktreeSelection !== "main" && worktreeSelection !== "create") {
-        sessionDirectory = worktreeSelection
+      const selection = worktreeSelection()
+      if (selection && selection !== "main" && selection !== "create") {
+        sessionDirectory = selection
       }
 
       if (sessionDirectory !== projectDirectory) {
@@ -1226,6 +1289,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       }
     }
     if (!session) return
+    const currentSession = session!
 
     props.onSubmit?.()
 
@@ -1257,7 +1321,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       clearInput()
       client.session
         .shell({
-          sessionID: session.id,
+          sessionID: currentSession.id,
           agent,
           model,
           command: text,
@@ -1280,7 +1344,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         clearInput()
         client.session
           .command({
-            sessionID: session.id,
+            sessionID: currentSession.id,
             command: commandName,
             arguments: args.join(" "),
             agent,
@@ -1436,13 +1500,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
     const optimisticParts = requestParts.map((part) => ({
       ...part,
-      sessionID: session.id,
+      sessionID: currentSession.id,
       messageID,
     })) as unknown as Part[]
 
     const optimisticMessage: Message = {
       id: messageID,
-      sessionID: session.id,
+      sessionID: currentSession.id,
       role: "user",
       time: { created: Date.now() },
       agent,
@@ -1453,9 +1517,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (sessionDirectory === projectDirectory) {
         sync.set(
           produce((draft) => {
-            const messages = draft.message[session.id]
+            const messages = draft.message[currentSession.id]
             if (!messages) {
-              draft.message[session.id] = [optimisticMessage]
+              draft.message[currentSession.id] = [optimisticMessage]
             } else {
               const result = Binary.search(messages, messageID, (m) => m.id)
               messages.splice(result.index, 0, optimisticMessage)
@@ -1471,9 +1535,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
       globalSync.child(sessionDirectory)[1](
         produce((draft) => {
-          const messages = draft.message[session.id]
+          const messages = draft.message[currentSession.id]
           if (!messages) {
-            draft.message[session.id] = [optimisticMessage]
+            draft.message[currentSession.id] = [optimisticMessage]
           } else {
             const result = Binary.search(messages, messageID, (m) => m.id)
             messages.splice(result.index, 0, optimisticMessage)
@@ -1490,7 +1554,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (sessionDirectory === projectDirectory) {
         sync.set(
           produce((draft) => {
-            const messages = draft.message[session.id]
+            const messages = draft.message[currentSession.id]
             if (messages) {
               const result = Binary.search(messages, messageID, (m) => m.id)
               if (result.found) messages.splice(result.index, 1)
@@ -1503,7 +1567,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
       globalSync.child(sessionDirectory)[1](
         produce((draft) => {
-          const messages = draft.message[session.id]
+          const messages = draft.message[currentSession.id]
           if (messages) {
             const result = Binary.search(messages, messageID, (m) => m.id)
             if (result.found) messages.splice(result.index, 1)
@@ -1525,14 +1589,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (!worktree || worktree.status !== "pending") return true
 
       if (sessionDirectory === projectDirectory) {
-        sync.set("session_status", session.id, { type: "busy" })
+        sync.set("session_status", currentSession.id, { type: "busy" })
       }
 
       const controller = new AbortController()
 
       const cleanup = () => {
         if (sessionDirectory === projectDirectory) {
-          sync.set("session_status", session.id, { type: "idle" })
+          sync.set("session_status", currentSession.id, { type: "idle" })
         }
         removeOptimisticMessage()
         for (const item of commentItems) {
@@ -1549,7 +1613,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         restoreInput()
       }
 
-      pending.set(session.id, { abort: controller, cleanup })
+      pending.set(currentSession.id, { abort: controller, cleanup })
 
       const abort = new Promise<Awaited<ReturnType<typeof WorktreeState.wait>>>((resolve) => {
         if (controller.signal.aborted) {
@@ -1577,7 +1641,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         if (timer.id === undefined) return
         clearTimeout(timer.id)
       })
-      pending.delete(session.id)
+      pending.delete(currentSession.id)
       if (controller.signal.aborted) return false
       if (result.status === "failed") throw new Error(result.message)
       return true
@@ -1587,7 +1651,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       const ok = await waitForWorktree()
       if (!ok) return
       await client.session.prompt({
-        sessionID: session.id,
+        sessionID: currentSession.id,
         agent,
         model,
         messageID,
@@ -1597,9 +1661,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
 
     void send().catch((err) => {
-      pending.delete(session.id)
+      pending.delete(currentSession.id)
       if (sessionDirectory === projectDirectory) {
-        sync.set("session_status", session.id, { type: "idle" })
+        sync.set("session_status", currentSession.id, { type: "idle" })
       }
       showToast({
         title: language.t("prompt.toast.promptSendFailed.title"),
@@ -2071,7 +2135,25 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
             >
               <IconButton
                 type="submit"
-                disabled={!prompt.dirty() && !working() && commentCount() === 0}
+                disabled={
+                  (() => {
+                    const promptCondition = !prompt.dirty() && !working() && commentCount() === 0
+                    const workspaceCondition = props.requireWorkspace && !worktreeSelection()
+                    const disabled = promptCondition || workspaceCondition
+                    // 详细调试日志
+                    console.log("[PromptInput] 按钮状态检查:", {
+                      promptDirty: prompt.dirty(),
+                      working: working(),
+                      commentCount: commentCount(),
+                      promptCondition,
+                      requireWorkspace: props.requireWorkspace,
+                      worktreeSelection: worktreeSelection(),
+                      workspaceCondition,
+                      disabled,
+                    })
+                    return disabled
+                  })()
+                }
                 icon={working() ? "stop" : "arrow-up"}
                 variant="primary"
                 class="h-6 w-4.5"

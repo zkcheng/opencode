@@ -1,6 +1,15 @@
 import { splitProps, type ComponentProps } from "solid-js"
 
 const icons = {
+  "sparkles": `<path d="M10 2L12 8L18 10L12 12L10 18L8 12L2 10L8 8L10 2Z" fill="currentColor"/>`,
+  "clock": `<circle cx="10" cy="10" r="7" stroke="currentColor"/><path d="M10 5V10H13" stroke="currentColor" stroke-linecap="round"/>`,
+  "settings": `<circle cx="10" cy="10" r="3" stroke="currentColor"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 .89 2.88 1.65 1.65 0 0 0 1.74-1.12l.06-.06a2 2 0 0 1 2.92-.89 1.65 1.65 0 0 0-1.12-1.74l-.06-.06a2 2 0 0 1-.89-2.88 1.65 1.65 0 0 0-1.74 1.12l-.06.06a2 2 0 0 1-2.92.89 1.65 1.65 0 0 0 1.12 1.74l.06.06a2 2 0 0 1 .89 2.88 1.65 1.65 0 0 0 1.74-1.12l.06-.06a2 2 0 0 1 2.92-.89 1.65 1.65 0 0 0 1.12-1.74l-.06-.06a2 2 0 0 1-.89-2.88 1.65 1.65 0 0 0-1.74 1.12l-.06.06a2 2 0 0 1-2.92.89 1.65 1.65 0 0 0-1.12 1.74l.06.06a2 2 0 0 1-.89 2.88M4.6 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 .89 2.88 1.65 1.65 0 0 0 1.74-1.12l.06-.06a2 2 0 0 1 2.92-.89 1.65 1.65 0 0 0-1.12-1.74l-.06-.06a2 2 0 0 1-.89-2.88 1.65 1.65 0 0 0-1.74 1.12l-.06.06a2 2 0 0 1-2.92.89 1.65 1.65 0 0 0 1.12 1.74l.06.06a2 2 0 0 1 .89 2.88 1.65 1.65 0 0 0 1.74-1.12l.06-.06a2 2 0 0 1 2.92-.89 1.65 1.65 0 0 0 1.12-1.74l-.06-.06a2 2 0 0 1-.89-2.88 1.65 1.65 0 0 0-1.74 1.12l-.06.06a2 2 0 0 1-2.92.89 1.65 1.65 0 0 0-1.12 1.74l.06.06a2 2 0 0 1-.89 2.88" stroke="currentColor" stroke-linecap="round"/>`,
+  "send": `<path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-linejoin="round"/>`,
+  "bug": `<path d="M10 2L10 4M10 16L10 18M4.929 4.929L6.343 6.343M13.657 13.657L15.071 15.071M4.929 15.071L6.343 13.657M13.657 6.343L15.071 4.929M18 10C18 11.105 17.553 12 17 12M2 10C2 8.895 2.447 8 3 8" stroke="currentColor" stroke-linecap="round"/>`,
+  "folder-open": `<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v1" stroke="currentColor"/>`,
+  "file-code": `<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor"/><path d="M14 2V8h6M10 13L8 15M14 11l-2 2" stroke="currentColor" stroke-linecap="round"/>`,
+  "file": `<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor"/>`,
+  "file-text": `<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor"/><path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-linecap="round"/>`,
   "align-right": `<path d="M12.292 6.04167L16.2503 9.99998L12.292 13.9583M2.91699 9.99998H15.6253M17.0837 3.75V16.25" stroke="currentColor" stroke-linecap="square"/>`,
   "arrow-up": `<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99991 2.24121L16.0921 8.33343L15.2083 9.21731L10.6249 4.63397V17.5001H9.37492V4.63398L4.7916 9.21731L3.90771 8.33343L9.99991 2.24121Z" fill="currentColor"/>`,
   "arrow-left": `<path d="M8.33464 4.58398L2.91797 10.0007L8.33464 15.4173M3.33464 10.0007H17.0846" stroke="currentColor" stroke-linecap="square"/>`,

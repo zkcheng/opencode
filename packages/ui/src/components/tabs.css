@@ -54,7 +54,7 @@
 
     white-space: nowrap;
     flex-shrink: 0;
-    max-width: 380px;
+    max-width: 320px;
     border-bottom: 1px solid var(--border-weak-base);
     border-right: 1px solid var(--border-weak-base);
     background-color: var(--background-base);
