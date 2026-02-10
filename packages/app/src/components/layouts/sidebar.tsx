@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createEffect } from "solid-js"
+import { For, Show, createMemo } from "solid-js"
 import { Icon } from "@opencode-ai/ui/icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { useNavigate, useParams } from "@solidjs/router"
@@ -9,8 +9,6 @@ import { DialogSettings } from "@/components/dialog-settings"
 import { useSDK } from "@/context/sdk"
 import { showToast } from "@opencode-ai/ui/toast"
 import { useLanguage } from "@/context/language"
-import { Binary } from "@opencode-ai/util/binary"
-import { produce } from "solid-js/store"
 
 interface SidebarProps {
   class?: string
@@ -59,10 +57,10 @@ export function Sidebar(props: SidebarProps) {
   // 会话列表 - 从sync获取真实数据
   const sessions = createMemo(() => sync.data.session || [])
 
-  // 历史任务列表（排除new）
+  // 历史任务列表（排除new和已归档）
   const historySessions = createMemo(() => {
     return sessions()
-      .filter((s) => s.id !== "new")
+      .filter((s) => s.id !== "new" && !s.time?.archived)
       .toSorted((a, b) => (b.time.updated ?? b.time.created) - (a.time.updated ?? a.time.created))
       .map((session) => {
         const messages = sync.data.message[session.id] || []
@@ -78,7 +76,7 @@ export function Sidebar(props: SidebarProps) {
   async function archiveSession(sessionID: string, directory: string, event: MouseEvent) {
     event.stopPropagation()
 
-    const [store, setStore] = globalSync.child(directory)
+    const [store] = globalSync.child(directory)
     const sessions = store.session ?? []
     const index = sessions.findIndex((s) => s.id === sessionID)
     const nextSession = sessions[index + 1] ?? sessions[index - 1]
@@ -94,25 +92,57 @@ export function Sidebar(props: SidebarProps) {
       console.log("[Sidebar] sdk.client.session.update success")
 
       // 立即从本地store中移除会话，确保UI立即响应
-      // 注意：GlobalSync的session.deleted事件处理可能会稍后再次更新，但这是安全的
-      sync.set(
-        "session",
-        produce((draft) => {
-          const draftIndex = draft.findIndex((s) => s.id === sessionID)
-          if (draftIndex !== -1) {
-            draft.splice(draftIndex, 1)
+      // 递归查找并移除所有子会话
+      sync.set("session", (prev) => {
+        console.log("[Sidebar] updating local session list, prev length:", prev?.length)
+        const removed = new Set<string>([sessionID])
+        
+        // 构建 parent 映射
+        const byParent = new Map<string, string[]>()
+        for (const item of prev) {
+          const parentID = item.parentID
+          if (!parentID) continue
+          const existing = byParent.get(parentID)
+          if (existing) {
+            existing.push(item.id)
+            continue
           }
-        })
-      )
+          byParent.set(parentID, [item.id])
+        }
 
-      // 如果删除的是当前会话，导航到下一个会话或新建会话
+        // 递归查找子会话
+        const stack = [sessionID]
+        while (stack.length) {
+          const parentID = stack.pop()
+          if (!parentID) continue
+
+          const children = byParent.get(parentID)
+          if (!children) continue
+
+          for (const child of children) {
+            if (removed.has(child)) continue
+            removed.add(child)
+            stack.push(child)
+          }
+        }
+
+        return prev.filter((s) => !removed.has(s.id))
+      })
+
+      // 如果删除的是当前会话，导航到下一个会话或主页
       if (sessionID === currentSessionID()) {
         // 使用 setTimeout 延迟导航，确保状态更新完成
         setTimeout(() => {
-          if (nextSession && nextSession.id !== "new") {
+          // 重新计算 nextSession，因为 sessions 列表已经变了（虽然这里用的是闭包前的 sessions，但逻辑上我们希望找下一个未归档的）
+          // 但由于我们已经有了 index，尝试找下一个。
+          // 更好的方式是看 historySessions() 的长度，如果为空则去主页
+          
+          // 如果还有历史任务，尝试跳转到下一个
+          if (nextSession && nextSession.id !== "new" && !nextSession.time?.archived) {
             navigate(`/${params.dir}/session/${nextSession.id}`)
           } else {
-            navigate(`/${params.dir}/session`)
+            // 否则回到主页
+            navigate(`/${params.dir}`)
           }
         }, 0)
       }
