@@ -348,7 +348,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   
   createEffect(() => {
     const value = props.newSessionWorktree
-    setWorktreeSelection(value)
+    // 如果传递的是 "."，则视为未设置（undefined）
+    setWorktreeSelection(value === "." ? undefined : value)
   })
 
   // 当切换到新会话且 requireWorkspace 时，检查工作空间
@@ -1685,7 +1686,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const currentWorkspaceLabel = createMemo(() => {
     const dir = worktreeSelection()
     // 如果没有选择工作空间，或者选择的是空字符串，都显示"关联工作空间"
-    if (!dir || dir === "") return "关联工作空间"
+    if (!dir || dir === "" || dir === ".") return "关联工作空间"
     return getFilenameTruncated(dir, 20)
   })
 

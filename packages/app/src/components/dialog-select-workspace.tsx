@@ -194,6 +194,7 @@ export function DialogSelectWorkspace(props: DialogSelectWorkspaceProps) {
           </div>
           <input
             type="text"
+            autofocus
             placeholder="搜索工作空间..."
             value={searchQuery()}
             onInput={(e) => setSearchQuery(e.currentTarget.value)}

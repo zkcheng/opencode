@@ -252,6 +252,7 @@ export function ChatPanel(props: ChatPanelProps) {
                   <div class="overflow-hidden p-2">
                     <PromptInput
                       requireWorkspace={true}
+                      newSessionWorktree={currentDirectory()}
                     />
                   </div>
                 </div>
