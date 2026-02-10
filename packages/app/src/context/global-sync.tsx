@@ -341,6 +341,8 @@ function createGlobalSync() {
     const all = input
       .filter((s) => !!s?.id)
       .filter((s) => !s.time?.archived)
+      // 在这里添加去重逻辑，确保同一 ID 不会出现多次
+      .filter((s, index, self) => index === self.findIndex((t) => t.id === s.id))
       .sort((a, b) => cmp(a.id, b.id))
 
     const roots = all.filter((s) => !s.parentID)
@@ -733,13 +735,22 @@ function createGlobalSync() {
       }
       case "session.created": {
         const info = event.properties.info
-        const result = Binary.search(store.session, info.id, (s) => s.id)
-        if (result.found) {
-          setStore("session", result.index, reconcile(info))
+        const index = store.session.findIndex((s) => s.id === info.id)
+        if (index !== -1) {
+          setStore("session", index, reconcile(info))
           break
         }
         const next = store.session.slice()
-        next.splice(result.index, 0, info)
+        // 保持 ID 排序插入，或者直接 push 后排序。这里为了简单和稳健，如果列表不大，可以 push
+        // 但为了保持原有行为（尽量有序），我们可以先尝试找到插入位置，或者直接 push。
+        // 原有逻辑是用 Binary.search 的 index 插入。
+        // 既然我们不再信任 Binary.search，我们就直接 push，然后依赖 trimSessions 里的排序（如果有的话）
+        // 或者我们手动维护排序。
+        // 让我们看看 trimSessions 是否排序。trimSessions 似乎只做截断。
+        // 为了稳健，我们先 push，然后 sort。
+        next.push(info)
+        next.sort((a, b) => cmp(a.id, b.id))
+        
         const trimmed = trimSessions(next, { limit: store.limit, permission: store.permission })
         setStore("session", reconcile(trimmed, { key: "id" }))
         if (!info.parentID) {
@@ -749,13 +760,17 @@ function createGlobalSync() {
       }
       case "session.updated": {
         const info = event.properties.info
-        const result = Binary.search(store.session, info.id, (s) => s.id)
+        const index = store.session.findIndex((s) => s.id === info.id)
         if (info.time.archived) {
-          if (result.found) {
+          if (index !== -1) {
             setStore(
               "session",
               produce((draft) => {
-                draft.splice(result.index, 1)
+                // 使用正确的索引删除
+                const draftIndex = draft.findIndex((s) => s.id === info.id)
+                if (draftIndex !== -1) {
+                  draft.splice(draftIndex, 1)
+                }
               }),
             )
           }
@@ -764,24 +779,34 @@ function createGlobalSync() {
           setStore("sessionTotal", (value) => Math.max(0, value - 1))
           break
         }
-        if (result.found) {
-          setStore("session", result.index, reconcile(info))
+        if (index !== -1) {
+          setStore("session", index, reconcile(info))
           break
         }
-        const next = store.session.slice()
-        next.splice(result.index, 0, info)
-        const trimmed = trimSessions(next, { limit: store.limit, permission: store.permission })
-        setStore("session", reconcile(trimmed, { key: "id" }))
+        // 如果不在当前列表中，则添加。
+        // 使用函数式更新以确保拿到最新状态
+        setStore("session", (prev) => {
+          // 再次检查是否已存在（防止并发）
+          if (prev.some(s => s.id === info.id)) {
+            return prev.map(s => s.id === info.id ? info : s)
+          }
+          const next = [...prev, info]
+          next.sort((a, b) => cmp(a.id, b.id))
+          return trimSessions(next, { limit: store.limit, permission: store.permission })
+        })
         break
       }
       case "session.deleted": {
         const sessionID = event.properties.info.id
-        const result = Binary.search(store.session, sessionID, (s) => s.id)
-        if (result.found) {
+        const index = store.session.findIndex((s) => s.id === sessionID)
+        if (index !== -1) {
           setStore(
             "session",
             produce((draft) => {
-              draft.splice(result.index, 1)
+              const draftIndex = draft.findIndex((s) => s.id === sessionID)
+              if (draftIndex !== -1) {
+                draft.splice(draftIndex, 1)
+              }
             }),
           )
         }

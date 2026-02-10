@@ -1,4 +1,4 @@
-import { For, Show, createMemo } from "solid-js"
+import { For, Show, createMemo, createEffect } from "solid-js"
 import { Icon } from "@opencode-ai/ui/icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { useNavigate, useParams } from "@solidjs/router"
@@ -83,34 +83,38 @@ export function Sidebar(props: SidebarProps) {
     const index = sessions.findIndex((s) => s.id === sessionID)
     const nextSession = sessions[index + 1] ?? sessions[index - 1]
 
+    console.log("[Sidebar] archiveSession start:", sessionID)
     try {
+      console.log("[Sidebar] calling sdk.client.session.update...")
       await sdk.client.session.update({
         directory: sdk.directory,
         sessionID: sessionID,
         time: { archived: Date.now() },
       })
+      console.log("[Sidebar] sdk.client.session.update success")
 
-      // 使用 produce 和 setStore 更新状态，触发响应式更新
-      setStore(
+      // 立即从本地store中移除会话，确保UI立即响应
+      // 注意：GlobalSync的session.deleted事件处理可能会稍后再次更新，但这是安全的
+      sync.set(
+        "session",
         produce((draft) => {
-          // 确保 session 数组存在
-          if (!draft.session) {
-            draft.session = []
+          const draftIndex = draft.findIndex((s) => s.id === sessionID)
+          if (draftIndex !== -1) {
+            draft.splice(draftIndex, 1)
           }
-          const match = Binary.search(draft.session, sessionID, (s) => s.id)
-          if (match.found) {
-            draft.session.splice(match.index, 1)
-          }
-        }),
+        })
       )
 
       // 如果删除的是当前会话，导航到下一个会话或新建会话
       if (sessionID === currentSessionID()) {
-        if (nextSession && nextSession.id !== "new") {
-          navigate(`/${params.dir}/session/${nextSession.id}`)
-        } else {
-          navigate(`/${params.dir}/session`)
-        }
+        // 使用 setTimeout 延迟导航，确保状态更新完成
+        setTimeout(() => {
+          if (nextSession && nextSession.id !== "new") {
+            navigate(`/${params.dir}/session/${nextSession.id}`)
+          } else {
+            navigate(`/${params.dir}/session`)
+          }
+        }, 0)
       }
 
       showToast({
@@ -208,9 +212,8 @@ export function Sidebar(props: SidebarProps) {
                       {/* 删除按钮 - 悬停时显示 */}
                       <IconButton
                         icon="trash"
-                        size="small"
                         variant="ghost"
-                        class="opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+                        class="size-6 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
                         onClick={(e) => archiveSession(session.id, session.directory, e)}
                       />
                     </button>

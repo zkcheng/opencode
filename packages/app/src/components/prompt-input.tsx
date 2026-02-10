@@ -333,16 +333,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     const prevId = previousSessionId()
     const isNewSession = !id || id === "new"
 
-    console.log("[PromptInput] 会话 ID 变化:", {
-      id,
-      prevId,
-      isNewSession,
-      sessionChanged: prevId !== id,
-    })
-
     // 只在从不同会话切换到 "new" 会话时重置 prompt
     if (isNewSession && prevId !== id && prevId !== undefined) {
-      console.log("[PromptInput] 会话切换到 new，重置 prompt")
       prompt.reset()
     }
 
@@ -352,12 +344,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   // 工作空间选择 - 响应式计算
   const worktreeSelection = createMemo(() => {
     const value = props.newSessionWorktree ?? (props.requireWorkspace ? sdk.directory : undefined)
-    console.log("[PromptInput] worktreeSelection 更新:", {
-      newSessionWorktree: props.newSessionWorktree,
-      requireWorkspace: props.requireWorkspace,
-      sdkDirectory: sdk.directory,
-      result: value,
-    })
     return value
   })
 
@@ -365,13 +351,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   createEffect(() => {
     const id = params.id
     const isNewSession = !id
-    if (isNewSession && props.requireWorkspace) {
-      console.log("[PromptInput] 新会话检查工作空间:", {
-        worktreeSelection: worktreeSelection(),
-        newSessionWorktree: props.newSessionWorktree,
-        sdkDirectory: sdk.directory,
-      })
-    }
   })
 
   const [composing, setComposing] = createSignal(false)
@@ -1183,19 +1162,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     const images = imageAttachments().slice()
     const mode = store.mode
 
-    console.log("[PromptInput] handleSubmit 调用:", {
-      currentPrompt,
-      textLength: text.length,
-      textTrimmedLength: text.trim().length,
-      imagesCount: images.length,
-      commentCount: commentCount(),
-      paramsId: params.id,
-      requireWorkspace: props.requireWorkspace,
-      worktreeSelection: worktreeSelection(),
-    })
-
     if (text.trim().length === 0 && images.length === 0 && commentCount() === 0) {
-      console.log("[PromptInput] handleSubmit 早期返回 - 没有内容")
       if (working()) abort()
       return
     }
@@ -2140,17 +2107,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     const promptCondition = !prompt.dirty() && !working() && commentCount() === 0
                     const workspaceCondition = props.requireWorkspace && !worktreeSelection()
                     const disabled = promptCondition || workspaceCondition
-                    // 详细调试日志
-                    console.log("[PromptInput] 按钮状态检查:", {
-                      promptDirty: prompt.dirty(),
-                      working: working(),
-                      commentCount: commentCount(),
-                      promptCondition,
-                      requireWorkspace: props.requireWorkspace,
-                      worktreeSelection: worktreeSelection(),
-                      workspaceCondition,
-                      disabled,
-                    })
                     return disabled
                   })()
                 }
