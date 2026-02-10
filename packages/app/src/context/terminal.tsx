@@ -253,7 +253,7 @@ export const { use: useTerminal, provider: TerminalProvider } = createSimpleCont
       return entry.value
     }
 
-    const workspace = createMemo(() => load(params.dir!, params.id))
+    const workspace = createMemo(() => load(params.dir || sdk.directory, params.id))
 
     return {
       ready: () => workspace().ready(),

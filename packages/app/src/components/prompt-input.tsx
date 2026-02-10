@@ -69,6 +69,8 @@ type PendingPrompt = {
 
 const pending = new Map<string, PendingPrompt>()
 
+import { DialogSelectWorkspace } from "@/components/dialog-select-workspace"
+
 interface PromptInputProps {
   class?: string
   ref?: (el: HTMLDivElement) => void
@@ -342,9 +344,11 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   })
 
   // 工作空间选择 - 响应式计算
-  const worktreeSelection = createMemo(() => {
-    const value = props.newSessionWorktree ?? (props.requireWorkspace ? sdk.directory : undefined)
-    return value
+  const [worktreeSelection, setWorktreeSelection] = createSignal<string | undefined>(undefined)
+  
+  createEffect(() => {
+    const value = props.newSessionWorktree
+    setWorktreeSelection(value)
   })
 
   // 当切换到新会话且 requireWorkspace 时，检查工作空间
@@ -1197,6 +1201,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     let client = sdk.client
 
     if (isNewSession) {
+      // 如果需要选择工作空间且未选择，则阻止发送并提示
+      if (props.requireWorkspace && !worktreeSelection()) {
+        showToast({
+          title: "请选择工作空间",
+          description: "开始对话前请先关联工作空间",
+        })
+        return
+      }
+
       if (worktreeSelection() === "create") {
         const createdWorktree = await client.worktree
           .create({ directory: projectDirectory })
@@ -1652,6 +1665,30 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     })
   }
 
+  const handleOpenWorkspaceSelector = () => {
+    dialog.show(() => (
+      <DialogSelectWorkspace
+        currentDirectory={worktreeSelection() ?? undefined}
+        onSelect={(workspaceDir) => {
+          setWorktreeSelection(workspaceDir)
+          
+          if (props.requireWorkspace) {
+             const encodedDir = base64Encode(workspaceDir)
+             navigate(`/${encodedDir}/session`)
+          }
+        }}
+      />
+    ))
+  }
+
+  // 获取当前工作空间显示名称
+  const currentWorkspaceLabel = createMemo(() => {
+    const dir = worktreeSelection()
+    // 如果没有选择工作空间，或者选择的是空字符串，都显示"关联工作空间"
+    if (!dir || dir === "") return "关联工作空间"
+    return getFilenameTruncated(dir, 20)
+  })
+
   return (
     <div class="relative size-full _max-h-[320px] flex flex-col gap-3">
       <Show when={store.popover}>
@@ -1932,6 +1969,18 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         </div>
         <div class="relative p-3 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 min-w-0 flex-1">
+            <Show when={props.requireWorkspace}>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-2 py-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors max-w-[200px]"
+                onClick={handleOpenWorkspaceSelector}
+                title="切换工作空间"
+              >
+                <Icon name="folder" size="small" class="text-icon-secondary shrink-0" />
+                <span class="text-12-regular truncate">{currentWorkspaceLabel()}</span>
+                <Icon name="chevron-down" size="small" class="text-icon-tertiary shrink-0" />
+              </button>
+            </Show>
             <Switch>
               <Match when={store.mode === "shell"}>
                 <div class="flex items-center gap-2 px-2 h-6">
@@ -1941,84 +1990,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 </div>
               </Match>
               <Match when={store.mode === "normal"}>
-                <TooltipKeybind
-                  placement="top"
-                  gutter={8}
-                  title={language.t("command.agent.cycle")}
-                  keybind={command.keybind("agent.cycle")}
-                >
-                  <Select
-                    options={local.agent.list().map((agent) => agent.name)}
-                    current={local.agent.current()?.name ?? ""}
-                    onSelect={local.agent.set}
-                    class={`capitalize ${local.model.variant.list().length > 0 ? "max-w-[80px]" : "max-w-[120px]"}`}
-                    valueClass="truncate"
-                    variant="ghost"
-                  />
-                </TooltipKeybind>
-                <Show
-                  when={providers.paid().length > 0}
-                  fallback={
-                    <TooltipKeybind
-                      placement="top"
-                      gutter={8}
-                      title={language.t("command.model.choose")}
-                      keybind={command.keybind("model.choose")}
-                    >
-                      <Button
-                        as="div"
-                        variant="ghost"
-                        class="px-2 min-w-0 max-w-[240px]"
-                        onClick={() => dialog.show(() => <DialogSelectModelUnpaid />)}
-                      >
-                        <Show when={local.model.current()?.provider?.id}>
-                          <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
-                        </Show>
-                        <span class="truncate">
-                          {local.model.current()?.name ?? language.t("dialog.model.select.title")}
-                        </span>
-                        <Icon name="chevron-down" size="small" class="shrink-0" />
-                      </Button>
-                    </TooltipKeybind>
-                  }
-                >
-                  <TooltipKeybind
-                    placement="top"
-                    gutter={8}
-                    title={language.t("command.model.choose")}
-                    keybind={command.keybind("model.choose")}
-                  >
-                    <ModelSelectorPopover
-                      triggerAs={Button}
-                      triggerProps={{ variant: "ghost", class: "min-w-0 max-w-[240px]" }}
-                    >
-                      <Show when={local.model.current()?.provider?.id}>
-                        <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
-                      </Show>
-                      <span class="truncate">
-                        {local.model.current()?.name ?? language.t("dialog.model.select.title")}
-                      </span>
-                      <Icon name="chevron-down" size="small" class="shrink-0" />
-                    </ModelSelectorPopover>
-                  </TooltipKeybind>
-                </Show>
-                <Show when={local.model.variant.list().length > 0}>
-                  <TooltipKeybind
-                    placement="top"
-                    gutter={8}
-                    title={language.t("command.model.variant.cycle")}
-                    keybind={command.keybind("model.variant.cycle")}
-                  >
-                    <Button
-                      data-action="model-variant-cycle"
-                      variant="ghost"
-                      class="text-text-base _hidden group-hover/prompt-input:inline-block capitalize text-12-regular"
-                      onClick={() => local.model.variant.cycle()}
-                    >
-                      {local.model.variant.current() ?? language.t("common.default")}
-                    </Button>
-                  </TooltipKeybind>
-                </Show>
                 <Show when={permission.permissionsEnabled() && params.id}>
                   <TooltipKeybind
                     placement="top"
@@ -2110,9 +2081,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     return disabled
                   })()
                 }
-                icon={working() ? "stop" : "arrow-up"}
+                icon={working() ? "stop" : "send"}
                 variant="primary"
-                class="h-6 w-4.5"
+                class="h-4.5 w-4.5"
                 aria-label={working() ? language.t("prompt.action.stop") : language.t("prompt.action.send")}
               />
             </Tooltip>

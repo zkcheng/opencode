@@ -189,6 +189,7 @@ function parse(value: string) {
 }
 
 function workspaceStorage(dir: string) {
+  if (!dir) dir = "workspace"
   const head = dir.slice(0, 12) || "workspace"
   const sum = checksum(dir) ?? "0"
   return `opencode.workspace.${head}.${sum}.dat`

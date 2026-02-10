@@ -3,6 +3,7 @@ import { createStore } from "solid-js/store"
 import { createSimpleContext } from "@opencode-ai/ui/context"
 import { useParams } from "@solidjs/router"
 import { Persist, persisted } from "@/utils/persist"
+import { useSDK } from "./sdk"
 import type { SelectedLineRange } from "@/context/file"
 
 export type LineComment = {
@@ -105,6 +106,7 @@ export const { use: useComments, provider: CommentsProvider } = createSimpleCont
   gate: false,
   init: () => {
     const params = useParams()
+    const sdk = useSDK()
     const cache = new Map<string, CommentCacheEntry>()
 
     const disposeAll = () => {
@@ -145,7 +147,7 @@ export const { use: useComments, provider: CommentsProvider } = createSimpleCont
       return entry.value
     }
 
-    const session = createMemo(() => load(params.dir!, params.id))
+    const session = createMemo(() => load(params.dir || sdk.directory, params.id))
 
     return {
       ready: () => session().ready(),

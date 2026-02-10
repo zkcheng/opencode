@@ -65,6 +65,9 @@ export function Sidebar(props: SidebarProps) {
 
   // 历史任务列表（排除new和已归档）
   const historySessions = createMemo(() => {
+    // 如果没有选择工作空间，不显示历史任务
+    if (!params.dir) return []
+
     return sessions()
       .filter((s) => s.id !== "new" && !s.time?.archived)
       .toSorted((a, b) => (b.time.updated ?? b.time.created) - (a.time.updated ?? a.time.created))
@@ -87,20 +90,16 @@ export function Sidebar(props: SidebarProps) {
     const index = sessions.findIndex((s) => s.id === sessionID)
     const nextSession = sessions[index + 1] ?? sessions[index - 1]
 
-    console.log("[Sidebar] archiveSession start:", sessionID)
     try {
-      console.log("[Sidebar] calling sdk.client.session.update...")
       await sdk.client.session.update({
         directory: sdk.directory,
         sessionID: sessionID,
         time: { archived: Date.now() },
       })
-      console.log("[Sidebar] sdk.client.session.update success")
 
       // 立即从本地store中移除会话，确保UI立即响应
       // 递归查找并移除所有子会话
       sync.set("session", (prev) => {
-        console.log("[Sidebar] updating local session list, prev length:", prev?.length)
         const removed = new Set<string>([sessionID])
         
         // 构建 parent 映射
@@ -187,7 +186,7 @@ export function Sidebar(props: SidebarProps) {
   return (
     <aside class={`flex h-full w-[280px] flex-col bg-background-base ${props.class ?? ""}`}>
       {/* Logo区域 */}
-      <div class="flex flex-col gap-1 px-5 py-5 pb-4 border-b border-border-weak-base">
+      <div class="flex flex-col gap-1 px-5 py-5 pb-4">
         <span class="font-['JetBrains_Mono'] text-2xl font-bold text-gradient-brand">发小</span>
         <span class="font-['Inter'] text-xs text-text-weak opacity-80">发小更懂你</span>
       </div>
@@ -196,7 +195,7 @@ export function Sidebar(props: SidebarProps) {
       <nav class="flex flex-1 flex-col gap-2 px-3 py-4 pt-4 pb-2 overflow-y-auto">
         {/* 新建任务按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-xl bg-surface-raised-base hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
+          class="flex items-center gap-3 h-11 px-3 rounded-xl hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
           onClick={handleNewTask}
         >
           <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-background-base group-hover:scale-110 transition-transform">
@@ -207,7 +206,7 @@ export function Sidebar(props: SidebarProps) {
 
         {/* 技能管理按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-xl bg-surface-raised-base hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
+          class="flex items-center gap-3 h-11 px-3 rounded-xl hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
           onClick={handleSkills}
         >
           <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-background-base group-hover:scale-110 transition-transform">
@@ -264,7 +263,7 @@ export function Sidebar(props: SidebarProps) {
       </nav>
 
       {/* 设置区域 */}
-      <div class="flex flex-col gap-2 px-3 py-3 pt-3 pb-4 border-t border-border-weak-base">
+      <div class="flex flex-col gap-2 px-3 py-3 pt-3 pb-4">
         <button
           class="flex items-center gap-2.5 h-10 px-3 rounded-lg hover:bg-surface-base-hover transition-colors"
           onClick={handleSettings}

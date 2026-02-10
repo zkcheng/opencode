@@ -1056,7 +1056,7 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
             class="relative shrink-0 h-full"
             style={{ width: `${layout.fileTree.width()}px` }}
           >
-            <div class="h-full border-l border-border-weak-base flex flex-col overflow-hidden group/filetree">
+            <div class="h-full flex flex-col overflow-hidden group/filetree">
               <Tabs variant="pill" value={fileTreeTab()} onChange={setFileTreeTabValue} class="h-full" data-scope="filetree">
                 <Tabs.List>
                   <Tabs.Trigger value="all" class="flex-1" classes={{ button: "w-full" }}>
@@ -1072,26 +1072,32 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
                     }
                   }}
                 >
-                  <ContextMenu>
-                    <ContextMenu.Trigger class="h-full">
-                      <FileTree
-                        path=""
-                        selectedPaths={selectedPaths()}
-                        onSelectionChange={setSelectedPaths}
-                        onFileClick={(node) => openTab(file.tab(node.path))}
-                      />
-                    </ContextMenu.Trigger>
-                    <Show when={platform.platform === "web"}>
-                      <ContextMenu.Content>
-                        <ContextMenu.Item onSelect={handleRootUpload}>
-                          <div class="flex items-center gap-2">
-                            <Icon name="cloud-upload" size="small" />
-                            <span>上传到根目录</span>
-                          </div>
-                        </ContextMenu.Item>
-                      </ContextMenu.Content>
-                    </Show>
-                  </ContextMenu>
+                  <Show when={!!params.dir} fallback={
+                    <div class="h-full flex flex-col items-center justify-center text-text-weak gap-2">
+                       <p class="text-sm">未关联工作空间</p>
+                    </div>
+                  }>
+                    <ContextMenu>
+                      <ContextMenu.Trigger class="h-full">
+                        <FileTree
+                          path=""
+                          selectedPaths={selectedPaths()}
+                          onSelectionChange={setSelectedPaths}
+                          onFileClick={(node) => openTab(file.tab(node.path))}
+                        />
+                      </ContextMenu.Trigger>
+                      <Show when={platform.platform === "web"}>
+                        <ContextMenu.Content>
+                          <ContextMenu.Item onSelect={handleRootUpload}>
+                            <div class="flex items-center gap-2">
+                              <Icon name="cloud-upload" size="small" />
+                              <span>上传到根目录</span>
+                            </div>
+                          </ContextMenu.Item>
+                        </ContextMenu.Content>
+                      </Show>
+                    </ContextMenu>
+                  </Show>
                 </Tabs.Content>
               </Tabs>
             </div>

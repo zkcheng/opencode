@@ -47,6 +47,8 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         current() {
           const available = list()
           if (available.length === 0) return undefined
+          const build = available.find((x) => x.name === "build")
+          if (build) return build
           return available.find((x) => x.name === store.current) ?? available[0]
         },
         set(name: string | undefined) {
@@ -126,13 +128,12 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       })
 
       const current = createMemo(() => {
-        const a = agent.current()
-        if (!a) return undefined
-        const key = getFirstValidModel(
-          () => ephemeral.model[a.name],
-          () => a.model,
-          fallbackModel,
-        )
+        // 固定使用全局配置的模型，忽略 Agent 的设置
+        // 如果想固定特定的模型，可以在这里修改，例如：
+        // const fixed = { providerID: "anthropic", modelID: "claude-3-5-sonnet" }
+        // if (isModelValid(fixed)) return models.find(fixed)
+
+        const key = fallbackModel()
         if (!key) return undefined
         return models.find(key)
       })

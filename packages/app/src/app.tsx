@@ -27,6 +27,10 @@ import { CommandProvider } from "@/context/command"
 import { LanguageProvider, useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
 import { HighlightsProvider } from "@/context/highlights"
+import { SDKProvider } from "@/context/sdk"
+import { SyncProvider } from "@/context/sync"
+import { LocalProvider } from "@/context/local"
+import { Toast } from "@opencode-ai/ui/toast"
 import Layout from "@/pages/layout"
 import DirectoryLayout from "@/pages/directory-layout"
 import { ErrorPage } from "./pages/error"
@@ -34,10 +38,49 @@ import { Suspense } from "solid-js"
 
 const Home = lazy(() => import("@/pages/home"))
 const Session = lazy(() => import("@/pages/session"))
-const Skills = lazy(() => import("@/pages/skills"))
 const PreviewPage = lazy(() => import("@/pages/preview"))
 const NewUI = lazy(() => import("@/pages/new-ui"))
 const Loading = () => <div class="size-full" />
+
+// 新增的包装组件，提供所有必要的上下文
+function SessionRouteWrapper() {
+  // 使用当前工作目录或默认目录
+  // 注意：这里我们需要确保有一个有效的 directory
+  // 如果没有 url 参数，我们可能需要一个默认值或者让 SDKProvider 处理空值
+  // 但 SDKProvider 需要 directory prop
+  
+  // 对于 /session 路由，我们可能没有 directory 参数
+  // 我们可以使用一个特殊的 "default" 或者空字符串，但 SDK 可能需要它
+  
+  // 临时方案：使用空字符串，让 SDKProvider 处理或者在该组件内部处理
+  // 如果 global-sync 需要有效的 directory，我们可以尝试使用全局配置中的 home 或者其他默认值
+  // 或者，我们可以在这里先不渲染 SDKProvider，直到用户选择了工作空间
+  
+  // 但目前的设计是，进入 session 界面就需要这些 provider。
+  // 我们尝试使用一个特定的标识符 "default" 或者 "."
+  const directory = "." 
+  
+  return (
+    <SDKProvider directory={directory}>
+      <SyncProvider>
+        <LocalProvider>
+          <TerminalProvider>
+            <FileProvider>
+              <PromptProvider>
+                <CommentsProvider>
+                  <Suspense fallback={<Loading />}>
+                    <Session />
+                  </Suspense>
+                  <Toast.Region />
+                </CommentsProvider>
+              </PromptProvider>
+            </FileProvider>
+          </TerminalProvider>
+        </LocalProvider>
+      </SyncProvider>
+    </SDKProvider>
+  )
+}
 
 function UiI18nBridge(props: ParentProps) {
   const language = useLanguage()
@@ -151,14 +194,11 @@ export function AppInterface(props: { defaultUrl?: string }) {
               <Route path="/" component={Layout}>
                 <Route
                   path="/"
-                  component={() => (
-                    <Suspense fallback={<Loading />}>
-                      <Home />
-                    </Suspense>
-                  )}
+                  component={() => <Navigate href="/session" />}
                 />
               </Route>
               {/* Session路由 - 使用DirectoryLayout但不使用Layout（不显示原左侧边栏） */}
+              <Route path="/session" component={SessionRouteWrapper} />
               <Route path="/:dir" component={DirectoryLayout}>
                 <Route path="/" component={() => <Navigate href="session" />} />
                 <Route

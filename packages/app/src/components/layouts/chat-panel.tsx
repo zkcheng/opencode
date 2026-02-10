@@ -170,7 +170,14 @@ export function ChatPanel(props: ChatPanelProps) {
   })
 
   // 会话标题
-  const sessionTitle = createMemo(() => extractSessionTitle(messages(), props.sessionID))
+  const sessionTitle = createMemo(() => {
+    // 优先从 session info 中获取标题
+    const info = sync.session.get(props.sessionID)
+    if (info?.title && !info.title.startsWith("会话 ") && !info.title.startsWith("Session ")) {
+      return info.title
+    }
+    return extractSessionTitle(messages(), props.sessionID)
+  })
 
   // 最后一条用户消息（用于SessionTurn）
   const lastUserMessage = createMemo(() => visibleUserMessages().at(-1))
@@ -236,26 +243,14 @@ export function ChatPanel(props: ChatPanelProps) {
               {/* Slogan */}
               <div class="relative flex flex-col items-center justify-center gap-2 z-10">
                 <h1 class="font-['JetBrains_Mono'] text-4xl md:text-5xl font-bold text-gradient-brand tracking-tight">发小更懂你</h1>
-                <p class="font-['Inter'] text-base text-text-weak opacity-80">您的智能编程助手，随时待命</p>
+                <p class="font-['Inter'] text-text-weak opacity-80">您的智能编程助手，随时待命</p>
               </div>
 
               {/* 输入框 - 使用PromptInput */}
               <div class="relative flex flex-col items-center justify-center w-full px-6 gap-4 z-10">
                 <div class="w-full max-w-3xl flex flex-col gap-3">
-                  {/* 工作空间选择器 - 只在欢迎页显示 */}
-                  <div class="flex justify-center">
-                    <button
-                      class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised-base border border-border-weak-base hover:border-primary-base hover:shadow-soft transition-all duration-300 w-fit group"
-                      onClick={handleOpenWorkspaceSelector}
-                    >
-                      <Icon name="folder" size="small" class="text-text-weaker group-hover:text-primary-base transition-colors" />
-                      <span class="font-['Inter'] text-xs font-medium text-text-secondary group-hover:text-primary-base transition-colors">{currentWorkspaceLabel()}</span>
-                      <Icon name="chevron-down" size="small" class="text-text-weakest group-hover:text-primary-base transition-colors" />
-                    </button>
-                  </div>
-                  <div class="shadow-soft rounded-xl overflow-hidden">
+                  <div class="overflow-hidden p-2">
                     <PromptInput
-                      newSessionWorktree={currentDirectory()}
                       requireWorkspace={true}
                     />
                   </div>
@@ -274,8 +269,8 @@ export function ChatPanel(props: ChatPanelProps) {
           <Show when={props.viewMode !== "default" && !isNewSession()}>
             {/* 对话模式 - 显示标题和消息区域 */}
             {/* 标题栏 */}
-            <div class="flex items-center h-15 px-6 border-b border-border-weak-base">
-              <h2 class="font-['Inter'] text-base font-semibold text-text-secondary">{sessionTitle()}</h2>
+            <div class="flex items-center h-15 px-[32px]">
+              <h2 class="font-['Inter'] font-semibold text-lg text-text-strong">{sessionTitle()}</h2>
             </div>
 
             {/* 消息区域 */}
@@ -349,7 +344,7 @@ export function ChatPanel(props: ChatPanelProps) {
             </div>
 
             {/* 输入区域 - 使用PromptInput */}
-            <div class="shrink-0 border-t border-border-weak-base p-4">
+            <div class="shrink-0 p-4">
               <div class="w-full max-w-4xl mx-auto">
                 <PromptInput />
               </div>
