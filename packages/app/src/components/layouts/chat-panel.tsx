@@ -229,36 +229,44 @@ export function ChatPanel(props: ChatPanelProps) {
         <div class="w-full h-full bg-background-base flex flex-col mx-auto" style={containerStyle()}>
           <Show when={props.viewMode === "default" || isNewSession()}>
             {/* 默认状态 - 欢迎页 */}
-            <div class="flex flex-col items-center justify-center h-full gap-8">
+            <div class="relative flex flex-col items-center justify-center h-full gap-10 overflow-hidden">
+              {/* 背景装饰光晕 */}
+              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-brand opacity-5 blur-[120px] rounded-full pointer-events-none" />
+
               {/* Slogan */}
-              <div class="flex items-center justify-center h-20">
-                <h1 class="font-['Inter'] text-2xl font-semibold text-text-weaker">发小更懂你</h1>
+              <div class="relative flex flex-col items-center justify-center gap-2 z-10">
+                <h1 class="font-['JetBrains_Mono'] text-4xl md:text-5xl font-bold text-gradient-brand tracking-tight">发小更懂你</h1>
+                <p class="font-['Inter'] text-base text-text-weak opacity-80">您的智能编程助手，随时待命</p>
               </div>
 
               {/* 输入框 - 使用PromptInput */}
-              <div class="flex flex-col items-center justify-center w-full px-6 gap-3">
-                <div class="w-full max-w-4xl flex flex-col gap-2">
+              <div class="relative flex flex-col items-center justify-center w-full px-6 gap-4 z-10">
+                <div class="w-full max-w-3xl flex flex-col gap-3">
                   {/* 工作空间选择器 - 只在欢迎页显示 */}
-                  <button
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-base-hover transition-colors w-fit"
-                    onClick={handleOpenWorkspaceSelector}
-                  >
-                    <Icon name="folder" size="small" class="text-primary-base" />
-                    <span class="font-['Inter'] text-sm font-medium text-text-secondary">{currentWorkspaceLabel()}</span>
-                    <Icon name="chevron-down" size="small" class="text-text-weaker ml-auto" />
-                  </button>
-                  <PromptInput
-                    newSessionWorktree={currentDirectory()}
-                    requireWorkspace={true}
-                  />
+                  <div class="flex justify-center">
+                    <button
+                      class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised-base border border-border-weak-base hover:border-primary-base hover:shadow-soft transition-all duration-300 w-fit group"
+                      onClick={handleOpenWorkspaceSelector}
+                    >
+                      <Icon name="folder" size="small" class="text-text-weaker group-hover:text-primary-base transition-colors" />
+                      <span class="font-['Inter'] text-xs font-medium text-text-secondary group-hover:text-primary-base transition-colors">{currentWorkspaceLabel()}</span>
+                      <Icon name="chevron-down" size="small" class="text-text-weakest group-hover:text-primary-base transition-colors" />
+                    </button>
+                  </div>
+                  <div class="shadow-soft rounded-xl overflow-hidden">
+                    <PromptInput
+                      newSessionWorktree={currentDirectory()}
+                      requireWorkspace={true}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* 技能卡片 */}
-              <div class="flex items-center justify-center gap-4 px-6">
-                <SkillCard icon="code" title="代码生成" description="快速生成代码" />
-                <SkillCard icon="sparkles" title="代码解释" description="解释代码逻辑" />
-                <SkillCard icon="bug" title="Bug修复" description="智能修复错误" />
+              <div class="relative flex flex-wrap items-center justify-center gap-4 px-6 z-10">
+                <SkillCard icon="code" title="代码生成" description="描述需求，自动生成代码" />
+                <SkillCard icon="sparkles" title="代码解释" description="深入解析复杂逻辑" />
+                <SkillCard icon="bug" title="Bug修复" description="快速定位并修复错误" />
               </div>
             </div>
           </Show>
@@ -355,13 +363,13 @@ export function ChatPanel(props: ChatPanelProps) {
 
 function SkillCard(props: { icon: IconProps["name"]; title: string; description: string }) {
   return (
-    <div class="flex flex-col items-center gap-3 px-5 py-5 rounded-xl bg-surface-raised-base w-[280px] h-[100px]">
-      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-primary-base">
-        <Icon name={props.icon} size="normal" class="text-text-invert-strong" />
+    <div class="glass-panel flex flex-col items-center gap-3 px-5 py-5 rounded-2xl w-[260px] h-[140px] hover:-translate-y-1 hover:shadow-glow transition-all duration-300 cursor-default group">
+      <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-brand shadow-md group-hover:scale-110 transition-transform duration-300">
+        <Icon name={props.icon} size="normal" class="text-white" />
       </div>
-      <div class="flex flex-col gap-1 text-center">
-        <span class="font-['Inter'] text-base font-semibold text-text-secondary">{props.title}</span>
-        <span class="font-['Inter'] text-sm text-text-weaker">{props.description}</span>
+      <div class="flex flex-col gap-1.5 text-center">
+        <span class="font-['Inter'] text-base font-bold text-text-strong group-hover:text-primary-base transition-colors">{props.title}</span>
+        <span class="font-['Inter'] text-xs text-text-weak leading-relaxed">{props.description}</span>
       </div>
     </div>
   )

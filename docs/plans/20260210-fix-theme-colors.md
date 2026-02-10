@@ -29,3 +29,12 @@
 - 修复工作空间选择对话框（DialogSelectWorkspace）主题问题：
     - 将对话框内搜索框、列表项、加载动画等元素的硬编码颜色（如 `#A855F7`, `#F8F7FF`）替换为语义化变量（如 `border-primary-base`, `bg-surface-base-active`）。
     - 确保选中状态、悬停状态和徽章样式在不同主题下均表现正常。
+- UI 重设计（Frontend Design）：
+    - 引入 Modern Clean & Vibrant 设计语言。
+    - **Sidebar**: Logo 增加品牌渐变色，导航按钮采用卡片式设计，悬停时有阴影和位移反馈；选中项左侧增加渐变指示条。
+    - **ChatPanel 欢迎页**: Slogan 放大并使用渐变色，背景增加动态模糊光晕。Skill Cards 采用 Glassmorphism（毛玻璃）效果，悬停时上浮并带有发光阴影。
+    - **CSS 变量**: 新增 `--gradient-brand`, `--shadow-soft`, `--shadow-glow`, `--glass-border` 等高级样式变量。
+- 重构技能管理界面：
+    - 将技能管理从路由页面 (`/skills`) 改为弹窗式组件 (`DialogSkills`)。
+    - 列表展示改为卡片式设计，支持主题适配。
+    - 增加搜索功能，优化开关交互和视觉反馈。

@@ -147,7 +147,7 @@ export namespace SessionSummary {
           {
             role: "user" as const,
             content: `
-              The following is the text to summarize:
+              请为以下文本生成一个简短的标题（5-10个字）。
               <text>
               ${textPart?.text ?? ""}
               </text>

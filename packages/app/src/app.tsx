@@ -179,14 +179,6 @@ export function AppInterface(props: { defaultUrl?: string }) {
                     </Show>
                   )}
                 />
-                <Route
-                  path="/skills"
-                  component={() => (
-                    <Suspense fallback={<Loading />}>
-                      <Skills />
-                    </Suspense>
-                  )}
-                />
               </Route>
             </Router>
           </GlobalSyncProvider>

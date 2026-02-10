@@ -19,6 +19,5 @@ export { MainLayout } from "./main-layout"
 export { Sidebar } from "./sidebar"
 export { ChatPanel } from "./chat-panel"
 export { WorkspacePanel } from "./workspace-panel"
-export { SkillsPage } from "./skills-page"
 
 export type { ViewMode } from "./main-layout"

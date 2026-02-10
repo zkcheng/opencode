@@ -48,6 +48,13 @@
   /* 特殊颜色 */
   --color-history-active: #A855F7;    /* 历史任务选中 */
   --color-history-bg: #F8F7FF;        /* 历史任务选中背景 */
+
+  /* 新设计系统变量 */
+  --gradient-brand: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Tailwind 自定义颜色类 (如果使用 Tailwind v3) */
@@ -61,4 +68,37 @@
   .text-logo { color: var(--color-logo); }
   .text-primary-deep { color: var(--color-primary-deep); }
   .text-history-active { color: var(--color-history-active); }
+
+  /* 新设计工具类 */
+  .text-gradient-brand {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .bg-gradient-brand {
+    background: var(--gradient-brand);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  /* 暗黑模式适配 (简单处理，实际应在 :root.dark 中定义) */
+  :root[class~="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }

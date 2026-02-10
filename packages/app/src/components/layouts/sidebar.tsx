@@ -6,6 +6,7 @@ import { useSync } from "@/context/sync"
 import { useGlobalSync } from "@/context/global-sync"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { DialogSettings } from "@/components/dialog-settings"
+import { DialogSkills } from "@/components/dialog-skills"
 import { useSDK } from "@/context/sdk"
 import { showToast } from "@opencode-ai/ui/toast"
 import { useLanguage } from "@/context/language"
@@ -17,24 +18,29 @@ interface SidebarProps {
 /**
  * 从消息中提取会话标题
  */
-function extractSessionTitle(messages: any[] | undefined, sessionID: string): string {
-  if (!messages || messages.length === 0) {
-    return `会话 ${sessionID.slice(0, 8)}`
+function extractSessionTitle(session: any, messages: any[] | undefined, allParts: Record<string, any[]> | undefined): string {
+  // 1. 优先使用 session.title (如果不是默认格式)
+  if (session.title && !session.title.startsWith("会话 ") && !session.title.startsWith("Session ")) {
+    return session.title
   }
-  // 找到第一条用户消息
-  const firstUserMessage = messages.find((m) => m.role === "user")
-  if (!firstUserMessage) {
-    return `会话 ${sessionID.slice(0, 8)}`
+
+  // 2. 尝试从第一条用户消息提取
+  if (messages && messages.length > 0) {
+    const firstUserMessage = messages.find((m: any) => m.role === "user")
+    if (firstUserMessage) {
+      // 从 parts 中找到 text 类型的内容
+      const parts = allParts?.[firstUserMessage.id] || []
+      const textPart = parts.find((p: any) => p.type === "text")
+      
+      if (textPart && textPart.text) {
+        const content = textPart.text.trim()
+        return content.length > 30 ? content.slice(0, 30) + "..." : content
+      }
+    }
   }
-  // 从parts中找到text类型的内容
-  const parts = firstUserMessage.parts || []
-  const textPart = parts.find((p: any) => p.type === "text")
-  if (textPart && textPart.content) {
-    const content = textPart.content.trim()
-    // 限制标题长度
-    return content.length > 30 ? content.slice(0, 30) + "..." : content
-  }
-  return `会话 ${sessionID.slice(0, 8)}`
+
+  // 3. Fallback
+  return session.title || `会话 ${session.id.slice(0, 8)}`
 }
 
 /**
@@ -66,7 +72,7 @@ export function Sidebar(props: SidebarProps) {
         const messages = sync.data.message[session.id] || []
         return {
           id: session.id,
-          title: extractSessionTitle(messages, session.id),
+          title: extractSessionTitle(session, messages, sync.data.part),
           directory: session.directory,
         }
       })
@@ -167,7 +173,7 @@ export function Sidebar(props: SidebarProps) {
   }
 
   function handleSkills() {
-    navigate(`/${params.dir}/skills`)
+    dialog.show(() => <DialogSkills />)
   }
 
   function handleSessionClick(sessionID: string) {
@@ -182,34 +188,38 @@ export function Sidebar(props: SidebarProps) {
     <aside class={`flex h-full w-[280px] flex-col bg-background-base ${props.class ?? ""}`}>
       {/* Logo区域 */}
       <div class="flex flex-col gap-1 px-5 py-5 pb-4 border-b border-border-weak-base">
-        <span class="font-['JetBrains_Mono'] text-2xl font-bold text-text-strong">发小</span>
-        <span class="font-['Inter'] text-xs text-text-weak">发小更懂你</span>
+        <span class="font-['JetBrains_Mono'] text-2xl font-bold text-gradient-brand">发小</span>
+        <span class="font-['Inter'] text-xs text-text-weak opacity-80">发小更懂你</span>
       </div>
 
       {/* 导航区域 */}
       <nav class="flex flex-1 flex-col gap-2 px-3 py-4 pt-4 pb-2 overflow-y-auto">
         {/* 新建任务按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-surface-raised-base hover:bg-surface-base-hover transition-colors"
+          class="flex items-center gap-3 h-11 px-3 rounded-xl bg-surface-raised-base hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
           onClick={handleNewTask}
         >
-          <Icon name="plus" size="normal" class="text-text-strong" />
+          <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-background-base group-hover:scale-110 transition-transform">
+            <Icon name="plus" size="normal" class="text-primary-base" />
+          </div>
           <span class="font-['JetBrains_Mono'] text-sm font-semibold text-text-strong">新建任务</span>
         </button>
 
         {/* 技能管理按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-surface-raised-base hover:bg-surface-base-hover transition-colors"
+          class="flex items-center gap-3 h-11 px-3 rounded-xl bg-surface-raised-base hover:bg-surface-base-hover hover:shadow-soft transition-all duration-200 group"
           onClick={handleSkills}
         >
-          <Icon name="sparkles" size="normal" class="text-text-strong" />
+          <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-background-base group-hover:scale-110 transition-transform">
+            <Icon name="sparkles" size="normal" class="text-primary-base" />
+          </div>
           <span class="font-['Inter'] text-sm font-medium text-text-strong">技能管理</span>
         </button>
 
         {/* 历史任务 */}
         <Show when={historySessions().length > 0}>
-          <div class="mt-4">
-            <span class="font-['Inter'] text-xs font-semibold text-text-weak tracking-wider">历史任务</span>
+          <div class="mt-6">
+            <span class="px-2 font-['Inter'] text-[10px] uppercase font-bold text-text-weaker tracking-widest opacity-60">历史任务</span>
             <div class="mt-3 flex flex-col gap-1">
               <For each={historySessions()}>
                 {(session) => {
@@ -217,24 +227,22 @@ export function Sidebar(props: SidebarProps) {
                   return (
                     <button
                       classList={{
-                        "flex items-center gap-2 h-9 px-3 rounded-lg w-full text-left transition-colors group relative": true,
-                        "bg-surface-base-active": isActive(),
-                        "hover:bg-surface-base-hover": !isActive(),
+                        "flex items-center gap-2 h-9 px-3 rounded-lg w-full text-left transition-all duration-200 group relative": true,
+                        "bg-surface-base-active shadow-sm": isActive(),
+                        "hover:bg-surface-base-hover hover:pl-4": !isActive(),
                       }}
                       onClick={() => handleSessionClick(session.id)}
                     >
                       <Show when={isActive()}>
-                        <div class="w-0.5 h-5 rounded-full bg-text-strong" />
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-gradient-brand" />
                       </Show>
-                      <Show when={!isActive()}>
-                        <div class="w-0.5 h-5 rounded-full bg-transparent" />
-                      </Show>
-                      <Icon name="clock" size="small" class={isActive() ? "text-text-strong" : "text-text-weak"} />
+                      
+                      <Icon name="clock" size="small" class={isActive() ? "text-primary-base" : "text-text-weaker group-hover:text-text-weak"} />
                       <span
                         classList={{
-                          "font-['Inter'] text-sm truncate flex-1 text-left": true,
-                          "font-semibold text-text-strong": isActive(),
-                          "font-normal text-text-weak": !isActive(),
+                          "font-['Inter'] text-sm truncate flex-1 text-left transition-colors": true,
+                          "font-medium text-text-strong": isActive(),
+                          "font-normal text-text-weak group-hover:text-text-strong": !isActive(),
                         }}
                       >
                         {session.title}
@@ -243,7 +251,7 @@ export function Sidebar(props: SidebarProps) {
                       <IconButton
                         icon="trash"
                         variant="ghost"
-                        class="size-6 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+                        class="size-6 opacity-0 group-hover:opacity-100 hover:text-error-base transition-opacity scale-90"
                         onClick={(e) => archiveSession(session.id, session.directory, e)}
                       />
                     </button>
