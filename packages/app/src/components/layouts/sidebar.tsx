@@ -179,37 +179,37 @@ export function Sidebar(props: SidebarProps) {
   }
 
   return (
-    <aside class={`flex h-full w-[280px] flex-col bg-white ${props.class ?? ""}`}>
+    <aside class={`flex h-full w-[280px] flex-col bg-background-base ${props.class ?? ""}`}>
       {/* Logo区域 */}
-      <div class="flex flex-col gap-1 px-5 py-5 pb-4 border-b border-[#F3F4F6]">
-        <span class="font-['JetBrains_Mono'] text-2xl font-bold text-[#A78BFA]">发小</span>
-        <span class="font-['Inter'] text-xs text-[#64748B]">发小更懂你</span>
+      <div class="flex flex-col gap-1 px-5 py-5 pb-4 border-b border-border-weak-base">
+        <span class="font-['JetBrains_Mono'] text-2xl font-bold text-text-strong">发小</span>
+        <span class="font-['Inter'] text-xs text-text-weak">发小更懂你</span>
       </div>
 
       {/* 导航区域 */}
       <nav class="flex flex-1 flex-col gap-2 px-3 py-4 pt-4 pb-2 overflow-y-auto">
         {/* 新建任务按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-[#EDE9FE] hover:bg-[#DDD6FE] transition-colors"
+          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-surface-raised-base hover:bg-surface-base-hover transition-colors"
           onClick={handleNewTask}
         >
-          <Icon name="plus" size="normal" class="text-[#7C3AED]" />
-          <span class="font-['JetBrains_Mono'] text-sm font-semibold text-[#0A0F1C]">新建任务</span>
+          <Icon name="plus" size="normal" class="text-text-strong" />
+          <span class="font-['JetBrains_Mono'] text-sm font-semibold text-text-strong">新建任务</span>
         </button>
 
         {/* 技能管理按钮 */}
         <button
-          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-[#EDE9FE] hover:bg-[#DDD6FE] transition-colors"
+          class="flex items-center gap-3 h-11 px-3 rounded-lg bg-surface-raised-base hover:bg-surface-base-hover transition-colors"
           onClick={handleSkills}
         >
-          <Icon name="sparkles" size="normal" class="text-[#A855F7]" />
-          <span class="font-['Inter'] text-sm font-medium text-[#1E293B]">技能管理</span>
+          <Icon name="sparkles" size="normal" class="text-text-strong" />
+          <span class="font-['Inter'] text-sm font-medium text-text-strong">技能管理</span>
         </button>
 
         {/* 历史任务 */}
         <Show when={historySessions().length > 0}>
           <div class="mt-4">
-            <span class="font-['Inter'] text-xs font-semibold text-[#475569] tracking-wider">历史任务</span>
+            <span class="font-['Inter'] text-xs font-semibold text-text-weak tracking-wider">历史任务</span>
             <div class="mt-3 flex flex-col gap-1">
               <For each={historySessions()}>
                 {(session) => {
@@ -218,23 +218,23 @@ export function Sidebar(props: SidebarProps) {
                     <button
                       classList={{
                         "flex items-center gap-2 h-9 px-3 rounded-lg w-full text-left transition-colors group relative": true,
-                        "bg-[#F8F7FF]": isActive(),
-                        "hover:bg-[#F8F7FF]": !isActive(),
+                        "bg-surface-base-active": isActive(),
+                        "hover:bg-surface-base-hover": !isActive(),
                       }}
                       onClick={() => handleSessionClick(session.id)}
                     >
                       <Show when={isActive()}>
-                        <div class="w-0.5 h-5 rounded-full bg-[#A855F7]" />
+                        <div class="w-0.5 h-5 rounded-full bg-text-strong" />
                       </Show>
                       <Show when={!isActive()}>
                         <div class="w-0.5 h-5 rounded-full bg-transparent" />
                       </Show>
-                      <Icon name="clock" size="small" class={isActive() ? "text-[#A855F7]" : "text-[#64748B]"} />
+                      <Icon name="clock" size="small" class={isActive() ? "text-text-strong" : "text-text-weak"} />
                       <span
                         classList={{
                           "font-['Inter'] text-sm truncate flex-1 text-left": true,
-                          "font-semibold text-[#A855F7]": isActive(),
-                          "font-normal text-[#64748B]": !isActive(),
+                          "font-semibold text-text-strong": isActive(),
+                          "font-normal text-text-weak": !isActive(),
                         }}
                       >
                         {session.title}
@@ -256,13 +256,13 @@ export function Sidebar(props: SidebarProps) {
       </nav>
 
       {/* 设置区域 */}
-      <div class="flex flex-col gap-2 px-3 py-3 pt-3 pb-4 border-t border-[#F3F4F6]">
+      <div class="flex flex-col gap-2 px-3 py-3 pt-3 pb-4 border-t border-border-weak-base">
         <button
-          class="flex items-center gap-2.5 h-10 px-3 rounded-lg hover:bg-[#F8FAFC] transition-colors"
+          class="flex items-center gap-2.5 h-10 px-3 rounded-lg hover:bg-surface-base-hover transition-colors"
           onClick={handleSettings}
         >
-          <Icon name="settings-gear" size="small" class="text-[#64748B]" />
-          <span class="font-['Inter'] text-sm font-medium text-[#475569]">设置</span>
+          <Icon name="settings-gear" size="small" class="text-text-weak" />
+          <span class="font-['Inter'] text-sm font-medium text-text-weak">设置</span>
         </button>
       </div>
     </aside>

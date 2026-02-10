@@ -201,7 +201,7 @@ export function ChatPanel(props: ChatPanelProps) {
   })
 
   const panelWidth = () => {
-    return "flex-1 min-w-0"
+    return "flex-1"
   }
 
   const containerStyle = createMemo(() => {
@@ -221,18 +221,18 @@ export function ChatPanel(props: ChatPanelProps) {
   })
 
   return (
-    <main class={`flex flex-col h-full bg-white ${panelWidth()} ${props.class ?? ""}`}>
+    <main class={`flex flex-col h-full bg-background-base ${panelWidth()} ${props.class ?? ""}`}>
       <div
         class="flex-1 w-full flex flex-col items-center h-full min-h-0"
-        style={hasPreview() ? {} : { "background-color": "#FAFAFA" }}
+        style={hasPreview() ? {} : { "background-color": "var(--background-page)" }}
       >
-        <div class="w-full h-full bg-white flex flex-col mx-auto" style={containerStyle()}>
+        <div class="w-full h-full bg-background-base flex flex-col mx-auto" style={containerStyle()}>
           <Show when={props.viewMode === "default" || isNewSession()}>
             {/* 默认状态 - 欢迎页 */}
             <div class="flex flex-col items-center justify-center h-full gap-8">
               {/* Slogan */}
               <div class="flex items-center justify-center h-20">
-                <h1 class="font-['Inter'] text-2xl font-semibold text-[#64748B]">发小更懂你</h1>
+                <h1 class="font-['Inter'] text-2xl font-semibold text-text-weaker">发小更懂你</h1>
               </div>
 
               {/* 输入框 - 使用PromptInput */}
@@ -240,12 +240,12 @@ export function ChatPanel(props: ChatPanelProps) {
                 <div class="w-full max-w-4xl flex flex-col gap-2">
                   {/* 工作空间选择器 - 只在欢迎页显示 */}
                   <button
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#F8F7FF] transition-colors w-fit"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-base-hover transition-colors w-fit"
                     onClick={handleOpenWorkspaceSelector}
                   >
-                    <Icon name="folder" size="small" class="text-[#A855F7]" />
-                    <span class="font-['Inter'] text-sm font-medium text-[#1E293B]">{currentWorkspaceLabel()}</span>
-                    <Icon name="chevron-down" size="small" class="text-[#64748B] ml-auto" />
+                    <Icon name="folder" size="small" class="text-primary-base" />
+                    <span class="font-['Inter'] text-sm font-medium text-text-secondary">{currentWorkspaceLabel()}</span>
+                    <Icon name="chevron-down" size="small" class="text-text-weaker ml-auto" />
                   </button>
                   <PromptInput
                     newSessionWorktree={currentDirectory()}
@@ -266,8 +266,8 @@ export function ChatPanel(props: ChatPanelProps) {
           <Show when={props.viewMode !== "default" && !isNewSession()}>
             {/* 对话模式 - 显示标题和消息区域 */}
             {/* 标题栏 */}
-            <div class="flex items-center h-15 px-6 border-b border-[#F3F4F6]">
-              <h2 class="font-['Inter'] text-base font-semibold text-[#1E293B]">{sessionTitle()}</h2>
+            <div class="flex items-center h-15 px-6 border-b border-border-weak-base">
+              <h2 class="font-['Inter'] text-base font-semibold text-text-secondary">{sessionTitle()}</h2>
             </div>
 
             {/* 消息区域 */}
@@ -279,7 +279,7 @@ export function ChatPanel(props: ChatPanelProps) {
               <Show
                 when={messagesReady()}
                 fallback={
-                  <div class="flex items-center justify-center h-full text-[#64748B]">
+                  <div class="flex items-center justify-center h-full text-text-weaker">
                     <p class="font-['Inter'] text-sm">加载中...</p>
                   </div>
                 }
@@ -341,7 +341,7 @@ export function ChatPanel(props: ChatPanelProps) {
             </div>
 
             {/* 输入区域 - 使用PromptInput */}
-            <div class="shrink-0 border-t border-[#F3F4F6] p-4">
+            <div class="shrink-0 border-t border-border-weak-base p-4">
               <div class="w-full max-w-4xl mx-auto">
                 <PromptInput />
               </div>
@@ -355,13 +355,13 @@ export function ChatPanel(props: ChatPanelProps) {
 
 function SkillCard(props: { icon: IconProps["name"]; title: string; description: string }) {
   return (
-    <div class="flex flex-col items-center gap-3 px-5 py-5 rounded-xl bg-[#EDE9FE] w-[280px] h-[100px]">
-      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[#7C3AED]">
-        <Icon name={props.icon} size="normal" class="text-[#F5F3FF]" />
+    <div class="flex flex-col items-center gap-3 px-5 py-5 rounded-xl bg-surface-raised-base w-[280px] h-[100px]">
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-primary-base">
+        <Icon name={props.icon} size="normal" class="text-text-invert-strong" />
       </div>
       <div class="flex flex-col gap-1 text-center">
-        <span class="font-['Inter'] text-base font-semibold text-[#1E293B]">{props.title}</span>
-        <span class="font-['Inter'] text-sm text-[#64748B]">{props.description}</span>
+        <span class="font-['Inter'] text-base font-semibold text-text-secondary">{props.title}</span>
+        <span class="font-['Inter'] text-sm text-text-weaker">{props.description}</span>
       </div>
     </div>
   )

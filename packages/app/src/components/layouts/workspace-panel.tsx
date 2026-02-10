@@ -287,14 +287,27 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
     void file.tree.list("")
   })
 
+  const previewWidth = createMemo(() => {
+    if (!hasPreview()) return 0
+    // 动态计算预览宽度：如果屏幕较小，减少预览宽度以保证文件树可见
+    const screenWidth = window.innerWidth
+    // 预留空间：侧边栏(280px) + 聊天栏(最小400px) + 文件树(layout.fileTree.width())
+    const reserved = 280 + 400 + (layout.fileTree.opened() ? layout.fileTree.width() : 0)
+    const available = screenWidth - reserved
+    
+    // 目标宽度 600px，但不超过可用空间的 50% 或剩余空间的 80%
+    const target = 600
+    const max = Math.max(300, Math.min(target, available * 0.8))
+    
+    return max
+  })
+
   const containerWidth = createMemo(() => {
     let width = 0
     if (layout.fileTree.opened()) {
       width += layout.fileTree.width()
     }
-    if (hasPreview()) {
-      width += 600 // Fixed preview width
-    }
+    width += previewWidth()
     return `${width}px`
   })
 
@@ -305,7 +318,10 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
     >
       <div class="flex-1 min-w-0 h-full flex">
         <Show when={hasPreview()}>
-          <div class="flex-1 min-w-0 h-full w-[600px] shrink-0 border-r border-border-weak-base">
+          <div 
+            class="flex-1 min-w-0 h-full shrink-0 border-r border-border-weak-base"
+            style={{ width: `${previewWidth()}px` }}
+          >
             <DragDropProvider
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
@@ -931,7 +947,7 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
                                   </button>
                                 </div>
                               </div>
-                              <div class="flex-1 min-h-0 relative w-full h-full bg-white">
+                              <div class="flex-1 min-h-0 relative w-full h-full bg-background-base">
                                 <iframe srcdoc={contents()} class="w-full h-full border-none" sandbox="allow-scripts" />
                               </div>
                             </div>
@@ -1083,8 +1099,8 @@ export function WorkspacePanel(props: WorkspacePanelProps) {
               direction="horizontal"
               edge="start"
               size={layout.fileTree.width()}
-              min={200}
-              max={480}
+              min={240}
+              max={380}
               collapseThreshold={160}
               onResize={layout.fileTree.resize}
               onCollapse={layout.fileTree.close}

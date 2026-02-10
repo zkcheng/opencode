@@ -197,7 +197,7 @@ export function DialogSelectWorkspace(props: DialogSelectWorkspaceProps) {
             placeholder="搜索工作空间..."
             value={searchQuery()}
             onInput={(e) => setSearchQuery(e.currentTarget.value)}
-            class="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-bg text-text-strong placeholder-text-weak focus:outline-none focus:ring-2 focus:ring-[#A855F7] focus:border-transparent"
+            class="w-full pl-10 pr-4 py-2 border border-border-base rounded-lg bg-input-base text-text-strong placeholder-text-weak focus:outline-none focus:ring-2 focus:ring-primary-base focus:border-transparent"
           />
           <Show when={searchQuery()}>
             <button
@@ -215,7 +215,7 @@ export function DialogSelectWorkspace(props: DialogSelectWorkspaceProps) {
         <Switch>
           <Match when={displayState() === 'loading'}>
             <div class="flex flex-col items-center justify-center py-8">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#A855F7] mb-4"></div>
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-base mb-4"></div>
               <div class="text-text-weak text-sm">加载工作空间...</div>
             </div>
           </Match>
@@ -242,13 +242,13 @@ export function DialogSelectWorkspace(props: DialogSelectWorkspaceProps) {
                   onClick={() => handleSelect(item.absolute)}
                   classList={{
                     "w-full flex items-center gap-x-3 p-3 rounded-lg mb-2 transition-colors": true,
-                    "bg-[#F8F7FF] border border-[#A855F7]": isSelected(item.absolute),
-                    "hover:bg-[#F8F7FF] border border-transparent": !isSelected(item.absolute),
+                    "bg-surface-base-active border border-primary-base": isSelected(item.absolute),
+                    "hover:bg-surface-base-hover border border-transparent": !isSelected(item.absolute),
                   }}
                 >
                   <div class="shrink-0">
-                    <div class="size-10 rounded-full bg-[#EDE9FE] flex items-center justify-center">
-                      <Icon name="folder" size="normal" class="text-[#7C3AED]" />
+                    <div class="size-10 rounded-full bg-surface-raised-base flex items-center justify-center">
+                      <Icon name="folder" size="normal" class="text-primary-base" />
                     </div>
                   </div>
                   <div class="flex flex-col min-w-0 flex-1 text-left">
@@ -257,7 +257,7 @@ export function DialogSelectWorkspace(props: DialogSelectWorkspaceProps) {
                         {getWorkspaceLabel(item)}
                       </span>
                       <Show when={isSelected(item.absolute)}>
-                        <span class="text-11-regular text-white px-1.5 py-0.5 bg-[#A855F7] rounded">
+                        <span class="text-11-regular text-text-invert-strong px-1.5 py-0.5 bg-primary-base rounded">
                           {language.t("dialog.workspace.current.badge")}
                         </span>
                       </Show>
