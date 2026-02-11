@@ -179,6 +179,7 @@ export const dict = {
   "common.loading": "Loading",
   "common.loading.ellipsis": "...",
   "common.cancel": "Cancel",
+  "common.confirm": "Confirm",
   "common.connect": "Connect",
   "common.disconnect": "Disconnect",
   "common.submit": "Submit",

@@ -43,6 +43,8 @@ function extractSessionTitle(session: any, messages: any[] | undefined, allParts
   return session.title || `会话 ${session.id.slice(0, 8)}`
 }
 
+import { DialogConfirm } from "@/components/dialog-confirm"
+
 /**
  * Sidebar - 左侧导航面板
  * 宽度: 280px
@@ -85,89 +87,102 @@ export function Sidebar(props: SidebarProps) {
   async function archiveSession(sessionID: string, directory: string, event: MouseEvent) {
     event.stopPropagation()
 
-    const [store] = globalSync.child(directory)
-    const sessions = store.session ?? []
-    const index = sessions.findIndex((s) => s.id === sessionID)
-    const nextSession = sessions[index + 1] ?? sessions[index - 1]
+    dialog.show(() => (
+      <DialogConfirm
+        title="确认删除"
+        description="确定要删除此会话吗？此操作不可恢复。"
+        confirmText="删除"
+        cancelText="取消"
+        onConfirm={async () => {
+          const [store] = globalSync.child(directory)
+          const sessions = store.session ?? []
+          const index = sessions.findIndex((s) => s.id === sessionID)
+          const nextSession = sessions[index + 1] ?? sessions[index - 1]
 
-    try {
-      await sdk.client.session.update({
-        directory: sdk.directory,
-        sessionID: sessionID,
-        time: { archived: Date.now() },
-      })
+          try {
+            await sdk.client.session.update({
+              directory: sdk.directory,
+              sessionID: sessionID,
+              time: { archived: Date.now() },
+            })
 
-      // 立即从本地store中移除会话，确保UI立即响应
-      // 递归查找并移除所有子会话
-      sync.set("session", (prev) => {
-        const removed = new Set<string>([sessionID])
-        
-        // 构建 parent 映射
-        const byParent = new Map<string, string[]>()
-        for (const item of prev) {
-          const parentID = item.parentID
-          if (!parentID) continue
-          const existing = byParent.get(parentID)
-          if (existing) {
-            existing.push(item.id)
-            continue
+            // 立即从本地store中移除会话，确保UI立即响应
+            // 递归查找并移除所有子会话
+            sync.set("session", (prev) => {
+              const removed = new Set<string>([sessionID])
+              
+              // 构建 parent 映射
+              const byParent = new Map<string, string[]>()
+              for (const item of prev) {
+                const parentID = item.parentID
+                if (!parentID) continue
+                const existing = byParent.get(parentID)
+                if (existing) {
+                  existing.push(item.id)
+                  continue
+                }
+                byParent.set(parentID, [item.id])
+              }
+
+              // 递归查找子会话
+              const stack = [sessionID]
+              while (stack.length) {
+                const parentID = stack.pop()
+                if (!parentID) continue
+
+                const children = byParent.get(parentID)
+                if (!children) continue
+
+                for (const child of children) {
+                  if (removed.has(child)) continue
+                  removed.add(child)
+                  stack.push(child)
+                }
+              }
+
+              return prev.filter((s) => !removed.has(s.id))
+            })
+
+            // 如果删除的是当前会话，导航到下一个会话或主页
+            if (sessionID === currentSessionID()) {
+              // 使用 setTimeout 延迟导航，确保状态更新完成
+              setTimeout(() => {
+                // 重新计算 nextSession，因为 sessions 列表已经变了（虽然这里用的是闭包前的 sessions，但逻辑上我们希望找下一个未归档的）
+                // 但由于我们已经有了 index，尝试找下一个。
+                // 更好的方式是看 historySessions() 的长度，如果为空则去主页
+                
+                // 如果还有历史任务，尝试跳转到下一个
+                if (nextSession && nextSession.id !== "new" && !nextSession.time?.archived) {
+                  navigate(`/${params.dir}/session/${nextSession.id}`)
+                } else {
+                  // 否则回到主页
+                  navigate(`/${params.dir}`)
+                }
+              }, 0)
+            }
+
+            showToast({
+              variant: "success",
+              title: language.t("common.success"),
+              description: language.t("session.archive.success"),
+            })
+          } catch (error) {
+            console.error("删除会话失败:", error)
+            showToast({
+              variant: "error",
+              title: language.t("common.error"),
+              description: language.t("session.archive.failed"),
+            })
           }
-          byParent.set(parentID, [item.id])
-        }
-
-        // 递归查找子会话
-        const stack = [sessionID]
-        while (stack.length) {
-          const parentID = stack.pop()
-          if (!parentID) continue
-
-          const children = byParent.get(parentID)
-          if (!children) continue
-
-          for (const child of children) {
-            if (removed.has(child)) continue
-            removed.add(child)
-            stack.push(child)
-          }
-        }
-
-        return prev.filter((s) => !removed.has(s.id))
-      })
-
-      // 如果删除的是当前会话，导航到下一个会话或主页
-      if (sessionID === currentSessionID()) {
-        // 使用 setTimeout 延迟导航，确保状态更新完成
-        setTimeout(() => {
-          // 重新计算 nextSession，因为 sessions 列表已经变了（虽然这里用的是闭包前的 sessions，但逻辑上我们希望找下一个未归档的）
-          // 但由于我们已经有了 index，尝试找下一个。
-          // 更好的方式是看 historySessions() 的长度，如果为空则去主页
-          
-          // 如果还有历史任务，尝试跳转到下一个
-          if (nextSession && nextSession.id !== "new" && !nextSession.time?.archived) {
-            navigate(`/${params.dir}/session/${nextSession.id}`)
-          } else {
-            // 否则回到主页
-            navigate(`/${params.dir}`)
-          }
-        }, 0)
-      }
-
-      showToast({
-        variant: "success",
-        title: language.t("common.success"),
-        description: language.t("session.archive.success"),
-      })
-    } catch (error) {
-      console.error("删除会话失败:", error)
-      showToast({
-        variant: "error",
-        title: language.t("common.error"),
-        description: language.t("session.archive.failed"),
-      })
-    }
+        }}
+      />
+    ))
   }
 
   function handleNewTask() {
+    if (!params.dir) {
+      return
+    }
     navigate(`/${params.dir}/session/new`)
   }
 
@@ -218,7 +233,7 @@ export function Sidebar(props: SidebarProps) {
         {/* 历史任务 */}
         <Show when={historySessions().length > 0}>
           <div class="mt-6">
-            <span class="px-2 font-['Inter'] text-[10px] uppercase font-bold text-text-weaker tracking-widest opacity-60">历史任务</span>
+            <span class="px-2 font-['Inter'] text-[14px] uppercase font-bold text-text-weaker tracking-widest opacity-60">历史任务</span>
             <div class="mt-3 flex flex-col gap-1">
               <For each={historySessions()}>
                 {(session) => {
