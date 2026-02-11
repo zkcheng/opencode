@@ -5,7 +5,7 @@ export const FIXED_PROJECTS: string[] = [
   // 示例：
   // "/Users/username/projects/my-app",
   // "C:\\Projects\\my-app",
-  "/Users/mac/myproject"
+  "/home/opencode/workspace"
 ]
 
 // 是否在固定项目目录中显示子文件夹
