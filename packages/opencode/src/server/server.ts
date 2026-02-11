@@ -476,6 +476,16 @@ export namespace Server {
             return c.json(await Format.status())
           },
         )
+        .get("/env.js", (c) => {
+          const env = {
+            FIXED_PROJECTS: process.env.FIXED_PROJECTS,
+            SHOW_SUBFOLDERS: process.env.SHOW_SUBFOLDERS,
+          }
+          const code = `window.__OPENCODE_ENV__ = ${JSON.stringify(env)};`
+          return c.text(code, 200, {
+            "Content-Type": "application/javascript",
+          })
+        })
         .get(
           "/event",
           describeRoute({
