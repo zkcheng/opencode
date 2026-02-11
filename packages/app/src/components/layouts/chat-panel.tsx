@@ -241,9 +241,11 @@ export function ChatPanel(props: ChatPanelProps) {
               <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-brand opacity-5 blur-[120px] rounded-full pointer-events-none" />
 
               {/* Slogan */}
-              <div class="relative flex flex-col items-center justify-center gap-2 z-10">
-                <h1 class="font-['JetBrains_Mono'] text-4xl md:text-5xl font-bold text-gradient-brand tracking-tight">发小更懂你</h1>
-                <p class="font-['Inter'] text-text-weak opacity-80">您的智能编程助手，随时待命</p>
+              <div class="relative flex flex-col items-center justify-center gap-6 z-10">
+                <div class="flex flex-col items-center gap-6">
+                  <h1 class="font-['JetBrains_Mono'] text-[48px] md:text-[32px] font-extrabold text-gradient-brand tracking-tight leading-[1.2] select-none">发小，更懂你</h1>
+                  <p class="font-['Inter'] text-2xl text-text-weak opacity-80 select-none">高效处理事务，激发工作灵感</p>
+                </div>
               </div>
 
               {/* 输入框 - 使用PromptInput */}
@@ -260,9 +262,9 @@ export function ChatPanel(props: ChatPanelProps) {
 
               {/* 技能卡片 */}
               <div class="relative flex flex-wrap items-center justify-center gap-4 px-6 z-10">
-                <SkillCard icon="code" title="代码生成" description="描述需求，自动生成代码" />
-                <SkillCard icon="sparkles" title="代码解释" description="深入解析复杂逻辑" />
-                <SkillCard icon="bug" title="Bug修复" description="快速定位并修复错误" />
+                <SkillCard icon="pencil-line" title="公文写作" description="快速起草邮件、报告和通知" />
+                <SkillCard icon="sparkles" title="知识问答" description="随时解答业务难题与百科" />
+                <SkillCard icon="file-text" title="文档总结" description="快速提炼长文档核心要点" />
               </div>
             </div>
           </Show>
@@ -361,7 +363,7 @@ function SkillCard(props: { icon: IconProps["name"]; title: string; description:
   return (
     <div class="glass-panel flex flex-col items-center gap-3 px-5 py-5 rounded-2xl w-[260px] h-[140px] hover:-translate-y-1 hover:shadow-glow transition-all duration-300 cursor-default group">
       <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-brand shadow-md group-hover:scale-110 transition-transform duration-300">
-        <Icon name={props.icon} size="normal" class="text-white" />
+        <Icon name={props.icon} size="normal" class="text-white" style={{ color: "white" }} />
       </div>
       <div class="flex flex-col gap-1.5 text-center">
         <span class="font-['Inter'] text-base font-bold text-text-strong group-hover:text-primary-base transition-colors">{props.title}</span>

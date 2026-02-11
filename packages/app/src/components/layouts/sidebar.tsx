@@ -202,8 +202,64 @@ export function Sidebar(props: SidebarProps) {
     <aside class={`flex h-full w-[280px] flex-col bg-background-base ${props.class ?? ""}`}>
       {/* Logo区域 */}
       <div class="flex flex-col gap-1 px-5 py-5 pb-4">
-        <span class="font-['JetBrains_Mono'] text-2xl font-bold text-gradient-brand">发小</span>
-        <span class="font-['Inter'] text-xs text-text-weak opacity-80">发小更懂你</span>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center justify-center w-8 h-8">
+            <svg class="w-full h-full drop-shadow-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="robot-body" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#F8FAFC" />
+                  <stop offset="100%" stop-color="#E2E8F0" />
+                </linearGradient>
+                <linearGradient id="screen-glow" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.1" />
+                </linearGradient>
+              </defs>
+
+              {/* 机器人头部 */}
+              <rect x="35" y="20" width="30" height="25" rx="6" fill="url(#robot-body)" stroke="#94A3B8" stroke-width="2" />
+              {/* 眼睛 */}
+              <circle cx="43" cy="32" r="3" fill="#3B82F6">
+                <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="57" cy="32" r="3" fill="#3B82F6">
+                <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />
+              </circle>
+              {/* 天线 */}
+              <line x1="50" y1="20" x2="50" y2="12" stroke="#94A3B8" stroke-width="2" />
+              <circle cx="50" cy="10" r="3" fill="#F472B6">
+                <animate attributeName="fill" values="#F472B6;#FB7185;#F472B6" dur="1s" repeatCount="indefinite" />
+              </circle>
+
+              {/* 机器人身体 */}
+              <path d="M25 50C25 47.2386 27.2386 45 30 45H70C72.7614 45 75 47.2386 75 50V80C75 82.7614 72.7614 85 70 85H30C27.2386 85 25 82.7614 25 80V50Z" fill="url(#robot-body)" stroke="#94A3B8" stroke-width="2" />
+              
+              {/* 屏幕/工作区 */}
+              <rect x="32" y="52" width="36" height="20" rx="2" fill="#1E293B" />
+              <rect x="34" y="54" width="32" height="16" fill="url(#screen-glow)" />
+              {/* 代码行动画 */}
+              <rect x="36" y="58" width="20" height="2" rx="1" fill="#38BDF8">
+                <animate attributeName="width" values="0;20;20" dur="2s" repeatCount="indefinite" />
+              </rect>
+              <rect x="36" y="62" width="15" height="2" rx="1" fill="#A78BFA">
+                <animate attributeName="width" values="0;15;15" dur="2s" begin="0.5s" repeatCount="indefinite" />
+              </rect>
+              <rect x="36" y="66" width="24" height="2" rx="1" fill="#34D399">
+                <animate attributeName="width" values="0;24;24" dur="2s" begin="1s" repeatCount="indefinite" />
+              </rect>
+
+              {/* 机械手臂 */}
+              <path d="M25 55L15 65L20 70" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <animateTransform attributeName="transform" type="rotate" values="0 25 55; 5 25 55; 0 25 55" dur="1s" repeatCount="indefinite" />
+              </path>
+              <path d="M75 55L85 65L80 70" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <animateTransform attributeName="transform" type="rotate" values="0 75 55; -5 75 55; 0 75 55" dur="1s" repeatCount="indefinite" />
+              </path>
+            </svg>
+          </div>
+          <span class="font-['JetBrains_Mono'] text-[24px] font-extrabold text-gradient-brand tracking-tight leading-[1.2] select-none">发小</span>
+        </div>
+        <span class="font-['Inter'] text-xs text-text-weak opacity-80 pl-1">您的全能办公助手</span>
       </div>
 
       {/* 导航区域 */}
@@ -280,7 +336,7 @@ export function Sidebar(props: SidebarProps) {
       {/* 设置区域 */}
       <div class="flex flex-col gap-2 px-3 py-3 pt-3 pb-4">
         <button
-          class="flex items-center gap-2.5 h-10 px-3 rounded-lg hover:bg-surface-base-hover transition-colors"
+          class="flex items-center gap-3 h-10 px-3 rounded-lg hover:bg-surface-base-hover transition-colors"
           onClick={handleSettings}
         >
           <Icon name="settings-gear" size="small" class="text-text-weak" />
