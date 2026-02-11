@@ -7,6 +7,7 @@ import { cors } from "hono/cors"
 import { streamSSE } from "hono/streaming"
 import { proxy } from "hono/proxy"
 import { basicAuth } from "hono/basic-auth"
+import { getCookie, setCookie } from "hono/cookie"
 import z from "zod"
 import { Provider } from "../provider/provider"
 import { NamedError } from "@opencode-ai/util/error"
@@ -79,7 +80,82 @@ export namespace Server {
             status: 500,
           })
         })
-        .use((c, next) => {
+        .use(async (c, next) => {
+          const authSecret = Flag.OPENCODE_AUTH_SECRET
+
+          if (authSecret) {
+            const verify = async (token: string, source: string) => {
+              try {
+                const parts = token.split(".")
+                if (parts.length !== 3) {
+                  return false
+                }
+                const [headerB64, payloadB64, signatureB64] = parts
+
+                const textEncoder = new TextEncoder()
+                const key = await crypto.subtle.importKey(
+                  "raw",
+                  textEncoder.encode(authSecret),
+                  { name: "HMAC", hash: "SHA-256" },
+                  false,
+                  ["verify"],
+                )
+
+                const data = textEncoder.encode(`${headerB64}.${payloadB64}`)
+                const binString = atob(signatureB64.replace(/-/g, "+").replace(/_/g, "/"))
+                const signature = Uint8Array.from(binString, (m) => m.codePointAt(0)!)
+
+                const isValid = await crypto.subtle.verify("HMAC", key, signature, data)
+                if (!isValid) {
+                  return false
+                }
+
+                try {
+                  const payload = JSON.parse(atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")))
+                  if (payload.exp && Date.now() / 1000 > payload.exp) {
+                    return false
+                  }
+                } catch (e) {
+                  return false
+                }
+
+                return true
+              } catch (e) {
+                return false
+              }
+            }
+
+            const queryToken = c.req.query("token")
+            if (queryToken) {
+              if (await verify(queryToken, "query")) {
+                setCookie(c, "opencode_auth_token", queryToken, {
+                  httpOnly: true,
+                  secure: c.req.url.startsWith("https"),
+                  path: "/",
+                  maxAge: 60 * 60 * 24 * 7, // 7 days
+                  sameSite: "Lax",
+                })
+                const url = new URL(c.req.url)
+                url.searchParams.delete("token")
+                return c.redirect(url.toString())
+              }
+            }
+
+            const cookieToken = getCookie(c, "opencode_auth_token")
+            if (cookieToken) {
+               // reduce log noise for happy path
+               // console.log(`[Auth] Detected token in cookie`)
+               if (await verify(cookieToken, "cookie")) {
+                 return next()
+               }
+            }
+
+            if (Flag.OPENCODE_LOGIN_URL && !c.req.header("accept")?.includes("application/json")) {
+              return c.redirect(Flag.OPENCODE_LOGIN_URL)
+            }
+            return c.text("Unauthorized", 401)
+          }
+
           const password = Flag.OPENCODE_SERVER_PASSWORD
           if (!password) return next()
           const username = Flag.OPENCODE_SERVER_USERNAME ?? "opencode"
