@@ -51,7 +51,10 @@ export const SessionRoutes = lazy(() =>
           limit: z.coerce.number().optional().meta({ description: "Maximum number of sessions to return" }),
         }),
       ),
-      async (c) => {
+      async (c, next) => {
+        if (c.req.header("Accept")?.includes("text/html")) {
+          return next()
+        }
         const query = c.req.valid("query")
         const term = query.search?.toLowerCase()
         const sessions: Session.Info[] = []
@@ -114,7 +117,10 @@ export const SessionRoutes = lazy(() =>
           sessionID: Session.get.schema,
         }),
       ),
-      async (c) => {
+      async (c, next) => {
+        if (c.req.header("Accept")?.includes("text/html")) {
+          return next()
+        }
         const sessionID = c.req.valid("param").sessionID
         log.info("SEARCH", { url: c.req.url })
         const session = await Session.get(sessionID)

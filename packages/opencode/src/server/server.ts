@@ -88,7 +88,7 @@ export namespace Server {
               try {
                 const parts = token.split(".")
                 if (parts.length !== 3) {
-                  return false
+                  return null
                 }
                 const [headerB64, payloadB64, signatureB64] = parts
 
@@ -107,28 +107,52 @@ export namespace Server {
 
                 const isValid = await crypto.subtle.verify("HMAC", key, signature, data)
                 if (!isValid) {
-                  return false
+                  return null
                 }
 
                 try {
                   const payload = JSON.parse(atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")))
                   if (payload.exp && Date.now() / 1000 > payload.exp) {
-                    return false
+                    return null
                   }
+                  return payload
                 } catch (e) {
-                  return false
+                  return null
                 }
-
-                return true
               } catch (e) {
-                return false
+                return null
               }
+            }
+
+            const sign = async (payload: any) => {
+              const header = { alg: "HS256", typ: "JWT" }
+              const headerB64 = Buffer.from(JSON.stringify(header)).toString("base64url")
+              const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url")
+              const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`)
+
+              const key = await crypto.subtle.importKey(
+                "raw",
+                new TextEncoder().encode(authSecret),
+                { name: "HMAC", hash: "SHA-256" },
+                false,
+                ["sign"],
+              )
+
+              const signature = await crypto.subtle.sign("HMAC", key, data)
+              const signatureB64 = Buffer.from(signature).toString("base64url")
+
+              return `${headerB64}.${payloadB64}.${signatureB64}`
             }
 
             const queryToken = c.req.query("token")
             if (queryToken) {
-              if (await verify(queryToken, "query")) {
-                setCookie(c, "opencode_auth_token", queryToken, {
+              const payload = await verify(queryToken, "query")
+              if (payload) {
+                // Generate a new long-lived session token
+                const sessionPayload = { ...payload, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 } // 7 days
+                const sessionToken = await sign(sessionPayload)
+
+                setCookie(c, "opencode_auth_token", sessionToken, {
                   httpOnly: true,
                   secure: c.req.url.startsWith("https"),
                   path: "/",

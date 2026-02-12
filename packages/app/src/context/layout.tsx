@@ -98,7 +98,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
       { ...target, migrate },
       createStore({
         sidebar: {
-          opened: false,
+          opened: true,
           width: 344,
           workspaces: {} as Record<string, boolean>,
           workspacesDefault: false,
