@@ -269,6 +269,18 @@ export const FileRoutes = lazy(() =>
             throw new HTTPException(400, { message: "No path provided" })
         }
 
+        const enc5987 = (s: string) =>
+          encodeURIComponent(s).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`)
+        const ascii = (s: string) => {
+          const x = s.replace(/[^\x20-\x7E]/g, "_").replace(/["\\]/g, "_")
+          return x.length ? x : "download"
+        }
+        const dispo = (name: string) => {
+          const a = ascii(name)
+          const e = enc5987(name)
+          return `attachment; filename="${a}"; filename*=UTF-8''${e}`
+        }
+
         // Single path handling (backward compatibility + optimization)
         if (paths.length === 1) {
             const filePath = paths[0]
@@ -297,13 +309,13 @@ export const FileRoutes = lazy(() =>
                 
                 return c.body(proc.stdout, 200, {
                     "Content-Type": "application/zip",
-                    "Content-Disposition": `attachment; filename="${filename}.zip"`,
+                    "Content-Disposition": dispo(`${filename}.zip`),
                 })
             }
 
             return c.body(file.stream(), 200, {
             "Content-Type": file.type || "application/octet-stream",
-            "Content-Disposition": `attachment; filename="${path.basename(filePath)}"`,
+            "Content-Disposition": dispo(path.basename(filePath)),
             })
         }
 

@@ -17,7 +17,7 @@ function getFixedProjects(): string[] {
     // 示例：
     // "/Users/username/projects/my-app",
     // "C:\\Projects\\my-app",
-    "/app/workspace",
+    "/Users/mac/myproject",
   ]
 }
 

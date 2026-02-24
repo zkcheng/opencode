@@ -2036,7 +2036,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 e.currentTarget.value = ""
               }}
             />
-            <div class="flex items-center gap-1 mr-1">
+            {/* <div class="flex items-center gap-1 mr-1">
               <SessionContextUsage />
               <Show when={store.mode === "normal"}>
                 <Tooltip placement="top" value={language.t("prompt.action.attachFile")}>
@@ -2051,7 +2051,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   </Button>
                 </Tooltip>
               </Show>
-            </div>
+            </div> */}
             <Tooltip
               placement="top"
               inactive={!prompt.dirty() && !working()}
