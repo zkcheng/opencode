@@ -27,6 +27,5 @@ target
 opencode-dev
 logs/
 *.bun-build
-git_operation.md
 
 .trae/
